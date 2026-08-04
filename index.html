@@ -1,0 +1,2403 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon Sprint: Cyber Protocol</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    HTML, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #05050a;
+      font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+      color: #e5e2e1;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      display: block;
+    }
+    input, select, textarea, button, a {
+      user-select: auto !important;
+      -webkit-user-select: auto !important;
+      touch-action: auto !important;
+      pointer-events: auto !important;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    #gameFooter {
+      position: absolute;
+      bottom: 6px;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      text-align: center;
+      font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+      font-size: 11px;
+      color: #8fa3a5;
+      pointer-events: auto;
+      background: linear-gradient(to top, rgba(5, 5, 10, 0.95) 0%, rgba(5, 5, 10, 0.6) 70%, transparent 100%);
+      padding: 6px 12px;
+      letter-spacing: 0.5px;
+    }
+    #gameFooter a {
+      color: #00f2ff;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 8px;
+      transition: all 0.2s ease;
+      display: inline-block;
+      cursor: pointer;
+    }
+    #gameFooter a:hover {
+      color: #ffd700;
+      text-shadow: 0 0 8px #ffd700;
+      transform: translateY(-1px);
+    }
+    #gameFooter .divider {
+      color: rgba(0, 242, 255, 0.3);
+    }
+    #gameFooter .copyright {
+      color: #5d7173;
+      margin-left: 6px;
+    }
+
+    /* Top User Account Bar */
+    #userAccountBar {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(12, 14, 25, 0.9);
+      border: 1px solid rgba(0, 242, 255, 0.6);
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 11px;
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+      backdrop-filter: blur(8px);
+      user-select: auto;
+      pointer-events: auto;
+    }
+    #userAccountBar .user-badge {
+      color: #ffd700;
+      font-weight: bold;
+    }
+    #userAccountBar .nanite-badge {
+      color: #00f2ff;
+    }
+    #userAccountBar button {
+      background: rgba(254, 0, 254, 0.2);
+      border: 1px solid #fe00fe;
+      color: #fe00fe;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #userAccountBar button:hover {
+      background: #fe00fe;
+      color: #ffffff;
+      box-shadow: 0 0 8px #fe00fe;
+    }
+
+    /* Cyber Modal Overlays */
+    .cyber-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(4, 5, 12, 0.92);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .cyber-overlay.active {
+      display: flex;
+    }
+    .cyber-card {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(12, 14, 25, 0.96);
+      border: 1px solid #00f2ff;
+      box-shadow: 0 0 30px rgba(0, 242, 255, 0.25), inset 0 0 20px rgba(0, 242, 255, 0.08);
+      border-radius: 12px;
+      padding: 24px;
+      color: #e5e2e1;
+      position: relative;
+    }
+    .cyber-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffd700;
+      text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .cyber-subtitle {
+      font-size: 11px;
+      color: #00f2ff;
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+    .cyber-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .cyber-tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      color: #b9cacb;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .cyber-tab-btn.active {
+      background: #00f2ff;
+      color: #05050a;
+      box-shadow: 0 0 12px #00f2ff;
+      border-color: #00f2ff;
+    }
+    .gateway-method-btn {
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      color: #b9cacb;
+      padding: 6px 4px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gateway-method-btn:hover, .gateway-method-btn.active {
+      background: rgba(0, 242, 255, 0.3);
+      border-color: #00f2ff;
+      color: #ffffff;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+    }
+    .cyber-input-group {
+      margin-bottom: 14px;
+    }
+    .cyber-input-group label {
+      display: block;
+      font-size: 11px;
+      color: #b9cacb;
+      margin-bottom: 6px;
+    }
+    .cyber-input-group input {
+      width: 100%;
+      background: rgba(5, 7, 15, 0.9);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+    .cyber-input-group input:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    .cyber-btn {
+      width: 100%;
+      padding: 12px;
+      background: #00f2ff;
+      border: none;
+      color: #05050a;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+      transition: all 0.2s;
+    }
+    .cyber-btn:hover {
+      background: #ffffff;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+    .cyber-btn-gold {
+      background: #ffd700;
+      color: #05050a;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    }
+    .cyber-btn-gold:hover {
+      background: #ffffff;
+      box-shadow: 0 0 20px #ffd700;
+    }
+    .cyber-notice-box {
+      background: rgba(254, 0, 254, 0.08);
+      border: 1px solid #fe00fe;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .cyber-notice-box h3 {
+      color: #fe00fe;
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+    .cyber-notice-box p {
+      font-size: 12px;
+      color: #e1fdff;
+      line-height: 1.5;
+    }
+    .cyber-pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .cyber-pkg-card {
+      background: rgba(18, 22, 38, 0.85);
+      border: 1px solid rgba(0, 242, 255, 0.4);
+      border-radius: 8px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cyber-pkg-card:hover, .cyber-pkg-card.selected {
+      border-color: #ffd700;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    }
+    .currency-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .curr-btn {
+      flex: 1;
+      padding: 6px 4px;
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      color: #00f2ff;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .curr-btn.active {
+      background: #00f2ff;
+      color: #05050a;
+      box-shadow: 0 0 8px #00f2ff;
+    }
+
+    /* Range Input Customization */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: rgba(0, 242, 255, 0.2);
+      border-radius: 2px;
+      border: 1px solid rgba(0, 242, 255, 0.4);
+    }
+    input[type=range]::-webkit-slider-thumb {
+      border: 1px solid #00f2ff;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #00f2ff;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -8px;
+      box-shadow: 0 0 10px #00f2ff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Top User Account HUD -->
+  <div id="userAccountBar">
+    <span class="user-badge">👤 PLAYER: <span id="accountUserDisplay">GUEST</span></span>
+    <span class="nanite-badge">⚡ NANITES: <span id="accountNaniteDisplay">0</span></span>
+    <span id="freeExtractedSpan" style="color:#b9cacb;">(Free: <span id="freeExtractedDisplay">0</span>/50)</span>
+    <button id="accountBtn" onclick="window.gameApp.toggleAccountModal()">🔑 LOG IN / SIGN UP</button>
+  </div>
+
+  <!-- HTML Modal 1: Login / Sign Up -->
+  <div id="loginModal" class="cyber-overlay">
+    <div class="cyber-card">
+      <div class="cyber-title">🔑 PLAYER SYSTEM ACCESS</div>
+      <div class="cyber-subtitle">INDIVIDUAL PLAYER ACCOUNT LOGIN & SIGN UP</div>
+
+      <div class="cyber-tabs">
+        <button id="tabLoginBtn" class="cyber-tab-btn active" onclick="window.gameApp.switchAuthTab('login')">LOG IN</button>
+        <button id="tabSignupBtn" class="cyber-tab-btn" onclick="window.gameApp.switchAuthTab('signup')">SIGN UP</button>
+      </div>
+
+      <div id="authErrorMsg" style="color:#fe00fe; font-size:11px; text-align:center; margin-bottom:10px; display:none;"></div>
+
+      <div class="cyber-input-group">
+        <label for="authUsername">USERNAME:</label>
+        <input type="text" id="authUsername" placeholder="Enter username..." autocomplete="off">
+      </div>
+
+      <div class="cyber-input-group">
+        <label for="authPassword">PASSWORD:</label>
+        <input type="password" id="authPassword" placeholder="Enter password..." autocomplete="off">
+      </div>
+
+      <button id="authSubmitBtn" class="cyber-btn" onclick="window.gameApp.handleAuthSubmit()">⚡ ENTER CYBER SYSTEM</button>
+
+      <div style="font-size: 10px; color: #8fa3a5; text-align: center; margin-top: 14px; line-height: 1.4;">
+        🔒 Note: Whenever you leave or close the app, your player session will automatically log out for maximum security.
+      </div>
+
+      <button style="margin-top: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('loginModal').classList.remove('active')">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- HTML Modal 2: Flash Notice - 50 Free Nanites Limit Reached -->
+  <div id="flashNoticeModal" class="cyber-overlay">
+    <div class="cyber-card" style="border-color: #fe00fe; box-shadow: 0 0 35px rgba(254, 0, 254, 0.4);">
+      <div class="cyber-title" style="color: #fe00fe; text-shadow: 0 0 15px #fe00fe;">⚡ FLASH NOTICE ⚡</div>
+      <div class="cyber-subtitle" style="color: #ffd700;">FREE NANITE EXTRACTION LIMIT REACHED!</div>
+
+      <div class="cyber-notice-box">
+        <h3>FREE NANITES EXHAUSTED (50/50)</h3>
+        <p>
+          Maximum 50 free nanites have been extracted for your player login account.
+          Your total available nanite energy is now <strong>0</strong>.
+          <br><br>
+          Please upgrade your nanites from the Cyber Vault to continue running!
+        </p>
+      </div>
+
+      <button class="cyber-btn cyber-btn-gold" onclick="window.gameApp.openStoreFromNotice()">⚡ UPGRADE NANITES</button>
+    </div>
+  </div>
+
+  <!-- HTML Modal 3: Upgrade Nanites & Cyber Vault (Automated Multi-Currency USD Payment Gateway) -->
+  <div id="storeModal" class="cyber-overlay">
+    <div class="cyber-card" style="max-width: 540px;">
+      <div class="cyber-title">⚡ UPGRADE NANITES & CYBER VAULT ⚡</div>
+      <div class="cyber-subtitle">24/7 AUTOMATED INTERNATIONAL PAYMENT GATEWAY</div>
+
+      <div style="font-size:10px; color:#b9cacb; margin-bottom:6px;">SELECT YOUR LOCAL CURRENCY:</div>
+      <div class="currency-selector">
+        <button class="curr-btn active" onclick="window.gameApp.selectCurrency('USD')">$ USD</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('EUR')">€ EUR</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('GBP')">£ GBP</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('INR')">₹ INR</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('JPY')">¥ JPY</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('CAD')">$ CAD</button>
+        <button class="curr-btn" onclick="window.gameApp.selectCurrency('AUD')">$ AUD</button>
+      </div>
+
+      <div class="cyber-pkg-grid">
+        <div class="cyber-pkg-card selected" id="pkgCard1" onclick="window.gameApp.buyPkgDirect(1)">
+          <div style="font-size:10px; color:#00f2ff; font-weight:bold;">STARTER</div>
+          <div style="font-size:14px; color:#ffd700; font-weight:bold; margin:4px 0;">+1,000</div>
+          <div style="font-size:9px; color:#b9cacb;">NANITES</div>
+          <button id="priceTag1" style="width:100%; border:1px solid #00f2ff; font-size:11px; color:#ffffff; font-weight:bold; margin-top:6px; background:rgba(0,242,255,0.25); padding:4px 2px; border-radius:4px; cursor:pointer;" onclick="event.stopPropagation(); window.gameApp.buyPkgDirect(1)">BUY $0.99</button>
+        </div>
+        <div class="cyber-pkg-card" id="pkgCard2" onclick="window.gameApp.buyPkgDirect(2)">
+          <div style="font-size:10px; color:#00f2ff; font-weight:bold;">CYBER PACK</div>
+          <div style="font-size:14px; color:#ffd700; font-weight:bold; margin:4px 0;">+5,000</div>
+          <div style="font-size:9px; color:#b9cacb;">NANITES</div>
+          <button id="priceTag2" style="width:100%; border:1px solid #00f2ff; font-size:11px; color:#ffffff; font-weight:bold; margin-top:6px; background:rgba(0,242,255,0.25); padding:4px 2px; border-radius:4px; cursor:pointer;" onclick="event.stopPropagation(); window.gameApp.buyPkgDirect(2)">BUY $2.99</button>
+        </div>
+        <div class="cyber-pkg-card" id="pkgCard3" onclick="window.gameApp.buyPkgDirect(3)">
+          <div style="font-size:10px; color:#00f2ff; font-weight:bold;">ULTRA VAULT</div>
+          <div style="font-size:14px; color:#ffd700; font-weight:bold; margin:4px 0;">+20,000</div>
+          <div style="font-size:9px; color:#b9cacb;">NANITES</div>
+          <button id="priceTag3" style="width:100%; border:1px solid #00f2ff; font-size:11px; color:#ffffff; font-weight:bold; margin-top:6px; background:rgba(0,242,255,0.25); padding:4px 2px; border-radius:4px; cursor:pointer;" onclick="event.stopPropagation(); window.gameApp.buyPkgDirect(3)">BUY $4.99</button>
+        </div>
+      </div>
+
+      <div style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.4); border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: left;">
+        <div style="font-size:11px; color:#ffd700; font-weight:bold; text-align:center; margin-bottom:6px;">⚡ 24/7 INTERNATIONAL AUTOMATED PAYMENT GATEWAY ⚡</div>
+        <div style="font-size:10px; color:#b9cacb; text-align:center; line-height:1.4;">
+          Instant automated payment processing & deposit settlement via Credit/Debit Cards, Net Banking & Apps, WhatsApp Pay, Razorpay, PayPal & Mailpay.
+        </div>
+      </div>
+
+      <div id="paymentSuccessMsg" style="color:#39ff14; font-size:11px; text-align:center; margin-bottom:10px; font-weight:bold; display:none; background:rgba(57,255,20,0.1); border:1px solid #39ff14; padding:8px; border-radius:4px;"></div>
+
+      <button id="payActionBtn" class="cyber-btn cyber-btn-gold" onclick="window.gameApp.openPaymentGateway()">⚡ BUY $0.99 - UPGRADE NANITES</button>
+
+      <button style="margin-top: 10px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('storeModal').classList.remove('active')">CLOSE VAULT</button>
+    </div>
+  </div>
+
+  <!-- HTML Modal 4: Payment Gateway Checkout Modal -->
+  <div id="paymentGatewayModal" class="cyber-overlay">
+    <div class="cyber-card" style="max-width: 520px; border-color: #00f2ff; box-shadow: 0 0 35px rgba(0, 242, 255, 0.4);">
+      <div class="cyber-title" style="color: #00f2ff;">🔒 SECURE PAYMENT GATEWAY 🔒</div>
+      <div class="cyber-subtitle" style="color: #ffd700;">24/7 INTERNATIONAL DIRECT CHECKOUT</div>
+
+      <div id="gatewayPkgSummary" style="background: rgba(0, 242, 255, 0.08); border: 1px solid rgba(0, 242, 255, 0.4); padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; color: #ffffff; text-align: center;">
+        Selected: <strong id="gatewayPkgTitle" style="color:#ffd700;">STARTER (+1,000 NANITES)</strong> — Total: <strong id="gatewayPkgPrice" style="color:#00f2ff;">$0.99 USD</strong>
+      </div>
+
+      <div style="font-size:10px; color:#b9cacb; margin-bottom:6px; text-align:left; font-weight:bold;">SELECT PAYMENT METHOD:</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
+        <button class="gateway-method-btn active" id="pmBtnCard" onclick="window.gameApp.selectPaymentMethod('card')">💳 Credit/Debit</button>
+        <button class="gateway-method-btn" id="pmBtnNetbank" onclick="window.gameApp.selectPaymentMethod('netbank')">🏦 Bank App/NetBanking</button>
+        <button class="gateway-method-btn" id="pmBtnUpi" onclick="window.gameApp.selectPaymentMethod('upi')">📱 UPI / WhatsApp</button>
+        <button class="gateway-method-btn" id="pmBtnRazorpay" onclick="window.gameApp.selectPaymentMethod('razorpay')">🌐 Razorpay</button>
+        <button class="gateway-method-btn" id="pmBtnPaypal" onclick="window.gameApp.selectPaymentMethod('paypal')">🅿️ PayPal</button>
+        <button class="gateway-method-btn" id="pmBtnMailpay" onclick="window.gameApp.selectPaymentMethod('mailpay')">✉️ Mailpay</button>
+      </div>
+
+      <!-- Payment Inputs area -->
+      <div id="paymentFormArea" style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 242, 255, 0.2); padding: 12px; border-radius: 6px; margin-bottom: 12px; text-align: left;">
+        <!-- Card fields -->
+        <div id="pmFieldsCard">
+          <label for="pmCardNumber" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">CARD NUMBER:</label>
+          <input type="text" id="pmCardNumber" placeholder="4532 •••• •••• 8921" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px; margin-bottom:8px;">
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1;">
+              <label for="pmCardExp" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">EXPIRY (MM/YY):</label>
+              <input type="text" id="pmCardExp" placeholder="12/28" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+            </div>
+            <div style="flex:1;">
+              <label for="pmCardCvv" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">CVV / CVC:</label>
+              <input type="password" id="pmCardCvv" placeholder="•••" maxlength="4" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Net Banking fields -->
+        <div id="pmFieldsNetbank" style="display:none;">
+          <label for="pmBankSelect" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">SELECT YOUR BANK / BANK APP:</label>
+          <select id="pmBankSelect" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+            <option value="International Banking SWIFT Gateway">International Banking SWIFT Gateway</option>
+            <option value="Direct NetBanking Gateway">Direct NetBanking Gateway</option>
+            <option value="HDFC Bank App">HDFC Bank App / NetBanking</option>
+            <option value="ICICI Bank App">ICICI Bank App / NetBanking</option>
+            <option value="State Bank of India">SBI NetBanking / YONO App</option>
+            <option value="Chase Bank">Chase Bank Online</option>
+            <option value="Bank of America">Bank of America Online</option>
+            <option value="HSBC Direct Wire">HSBC Direct Wire</option>
+          </select>
+        </div>
+
+        <!-- UPI / WhatsApp fields -->
+        <div id="pmFieldsUpi" style="display:none;">
+          <label for="pmUpiId" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">ENTER UPI / WHATSAPP PAY ID OR PHONE:</label>
+          <input type="text" id="pmUpiId" placeholder="user@upi / +1 555-0192" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+        </div>
+
+        <!-- Razorpay fields -->
+        <div id="pmFieldsRazorpay" style="display:none;">
+          <div style="font-size:11px; color:#00f2ff; margin-bottom:4px;">Razorpay International Express Checkout</div>
+          <label for="pmRazorpayId" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">EMAIL OR MOBILE:</label>
+          <input type="text" id="pmRazorpayId" placeholder="player@domain.com" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+        </div>
+
+        <!-- PayPal fields -->
+        <div id="pmFieldsPaypal" style="display:none;">
+          <label for="pmPaypalEmail" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">PAYPAL ACCOUNT EMAIL:</label>
+          <input type="email" id="pmPaypalEmail" placeholder="account@paypal.com" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+        </div>
+
+        <!-- Mailpay fields -->
+        <div id="pmFieldsMailpay" style="display:none;">
+          <label for="pmMailpayId" style="font-size:10px; color:#b9cacb; display:block; margin-bottom:4px;">MAILPAY ID / EXPRESS PAY ACCOUNT:</label>
+          <input type="text" id="pmMailpayId" placeholder="mailpay-user-9982" style="width:100%; background:rgba(0,0,0,0.6); border:1px solid #00f2ff; color:#fff; padding:6px; font-family:'JetBrains Mono', monospace; font-size:11px; border-radius:4px;">
+        </div>
+      </div>
+
+      <div id="gatewayStatusMsg" style="color:#ffd700; font-size:11px; text-align:center; margin-bottom:8px; font-weight:bold; display:none; padding:6px; background:rgba(255,215,0,0.1); border:1px solid #ffd700; border-radius:4px;"></div>
+
+      <button id="gatewaySubmitBtn" class="cyber-btn cyber-btn-gold" onclick="window.gameApp.submitPaymentGateway()">⚡ PAY NOW (SECURE GATEWAY)</button>
+
+      <button style="margin-top: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 6px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('paymentGatewayModal').classList.remove('active')">CANCEL TRANSACTION</button>
+    </div>
+  </div>
+
+  <!-- HTML Modal 5: System Audio Settings -->
+  <div id="settingsModal" class="cyber-overlay">
+    <div class="cyber-card">
+      <div class="cyber-title">⚙️ SYSTEM CONFIGURATION</div>
+      <div class="cyber-subtitle">INDEPENDENT AUDIO & PROTOCOL CONTROLS</div>
+
+      <div class="cyber-input-group">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <label for="bgmVolumeSlider">BGM VOLUME:</label>
+          <span id="bgmVolumeDisplay" style="color:#00f2ff; font-weight:bold;">50%</span>
+        </div>
+        <input type="range" id="bgmVolumeSlider" min="0" max="100" value="50" oninput="window.gameApp.updateBgmVolume(this.value)">
+      </div>
+
+      <div class="cyber-input-group">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <label for="sfxVolumeSlider">SFX VOLUME:</label>
+          <span id="sfxVolumeDisplay" style="color:#fe00fe; font-weight:bold;">80%</span>
+        </div>
+        <input type="range" id="sfxVolumeSlider" min="0" max="100" value="80" oninput="window.gameApp.updateSfxVolume(this.value)">
+      </div>
+
+      <div style="background:rgba(0,242,255,0.05); border:1px solid rgba(0,242,255,0.2); border-radius:6px; padding:12px; margin-top:20px; font-size:10px; color:#8fa3a5; line-height:1.4;">
+        🔊 Settings are automatically synchronized and persisted in your local Cyber Cache for subsequent sessions.
+      </div>
+
+      <button class="cyber-btn" style="margin-top:24px;" onclick="document.getElementById('settingsModal').classList.remove('active')">SYNC & CLOSE</button>
+    </div>
+  </div>
+
+  <footer id="gameFooter">
+    <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" id="privacyLink" onclick="openPrivacyPolicy(event)">📜 Privacy Policy</a>
+    <span class="divider">|</span>
+    <span class="copyright">&copy; 2026 Rajarshi Roy Chaudhuri</span>
+  </footer>
+
+  <div id="root"></div>
+  <script>
+    function openPrivacyPolicy(e) {
+      if (e) e.preventDefault();
+
+      // Check if running on Android with native interface
+      if (window.Android && typeof window.Android.openPrivacyPolicy === 'function') {
+        window.Android.openPrivacyPolicy();
+        return;
+      }
+
+      const url = 'privacy-policy.html';
+      try {
+        const win = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+          window.location.href = url;
+        }
+      } catch (err) {
+        window.location.href = url;
+      }
+    }
+
+    /* ==========================================================================
+       NEON SPRINT: CYBER PROTOCOL
+       A Self-Contained High-Octane Cyberpunk HTML5 Canvas Endless Runner
+       ========================================================================== */
+
+    // --- ACCOUNT & LOGIN MANAGER ---
+    class AccountManager {
+      constructor() {
+        this.dbKey = 'neonsprint_accounts_db';
+        this.sessionKey = 'neonsprint_active_session_user';
+        this.setupAutoLogout();
+      }
+
+      setupAutoLogout() {
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            window.addEventListener('beforeunload', () => {
+              sessionStorage.removeItem(this.sessionKey);
+            });
+          }
+        } catch(e) {}
+      }
+
+      getAccounts() {
+        try {
+          if (typeof localStorage === 'undefined') return {};
+          return JSON.parse(localStorage.getItem(this.dbKey) || '{}');
+        } catch(e) {
+          return {};
+        }
+      }
+
+      saveAccounts(accounts) {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(this.dbKey, JSON.stringify(accounts));
+          }
+        } catch(e) {
+          console.error("Storage Error:", e);
+        }
+      }
+
+      getActiveUser() {
+        try {
+          if (typeof sessionStorage === 'undefined') return null;
+          return sessionStorage.getItem(this.sessionKey) || null;
+        } catch(e) {
+          return null;
+        }
+      }
+
+      getAccountData(username) {
+        if (!username) return null;
+        const accounts = this.getAccounts();
+        if (!accounts[username]) {
+          accounts[username] = {
+            password: '',
+            nanites: 0,
+            freeExtracted: 0, // max 50 free
+            bestDistance: 0
+          };
+          this.saveAccounts(accounts);
+        }
+        return accounts[username];
+      }
+
+      updateAccountData(username, updates) {
+        if (!username) return;
+        const accounts = this.getAccounts();
+        if (accounts[username]) {
+          accounts[username] = { ...accounts[username], ...updates };
+          this.saveAccounts(accounts);
+        }
+      }
+
+      login(username, password) {
+        const u = username.trim().toLowerCase();
+        if (!u) return { success: false, msg: 'Please enter a username.' };
+        const accounts = this.getAccounts();
+        if (!accounts[u]) {
+          return { success: false, msg: 'Account not found! Click Sign Up to create.' };
+        }
+        if (accounts[u].password !== password) {
+          return { success: false, msg: 'Incorrect password!' };
+        }
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem(this.sessionKey, u);
+          }
+        } catch(e) {}
+        return { success: true, username: u };
+      }
+
+      signup(username, password) {
+        const u = username.trim().toLowerCase();
+        if (!u || u.length < 3) return { success: false, msg: 'Username must be at least 3 characters.' };
+        if (!password || password.length < 3) return { success: false, msg: 'Password must be at least 3 characters.' };
+        const accounts = this.getAccounts();
+        if (accounts[u]) return { success: false, msg: 'Account already exists! Please Log In.' };
+
+        accounts[u] = {
+          password: password,
+          nanites: 0,
+          freeExtracted: 0, // max 50 free
+          bestDistance: 0
+        };
+        this.saveAccounts(accounts);
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.setItem(this.sessionKey, u);
+          }
+        } catch(e) {}
+        return { success: true, username: u };
+      }
+
+      logout() {
+        try {
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem(this.sessionKey);
+          }
+        } catch(e) {}
+      }
+    }
+
+    // --- SOUND MANAGER (Web Audio API Procedural Audio) ---
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+        this.bgmTimer = null;
+        this.isMuted = false;
+
+        // Volume states (0.0 to 1.0)
+        this.bgmVolume = parseFloat(localStorage.getItem('neonsprint_bgm_vol') || '0.5');
+        this.sfxVolume = parseFloat(localStorage.getItem('neonsprint_sfx_vol') || '0.8');
+      }
+
+      init() {
+        if (this.ctx) return;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          this.ctx = new AudioCtx();
+        }
+      }
+
+      ensureContext() {
+        if (!this.ctx) this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setBgmVolume(val) {
+        this.bgmVolume = val;
+        localStorage.setItem('neonsprint_bgm_vol', val.toString());
+      }
+
+      setSfxVolume(val) {
+        this.sfxVolume = val;
+        localStorage.setItem('neonsprint_sfx_vol', val.toString());
+      }
+
+      playPickup() {
+        if (this.isMuted || this.sfxVolume <= 0) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        freqs.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.03);
+          gain.gain.setValueAtTime(0.15 * this.sfxVolume, now + i * 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.03 + 0.12);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.03);
+          osc.stop(now + i * 0.03 + 0.13);
+        });
+      }
+
+      playCrash() {
+        if (this.isMuted || this.sfxVolume <= 0) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        // White Noise Burst
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.4);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1200, now);
+        filter.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.6 * this.sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start(now);
+
+        // Sub-bass Pitch Drop
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(25, now + 0.4);
+
+        oscGain.gain.setValueAtTime(0.5 * this.sfxVolume, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        osc.connect(oscGain);
+        oscGain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+
+      playLaneSwitch() {
+        if (this.isMuted || this.sfxVolume <= 0) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(520, now + 0.07);
+
+        gain.gain.setValueAtTime(0.1 * this.sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      }
+
+      playClick() {
+        if (this.isMuted || this.sfxVolume <= 0) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.05);
+
+        gain.gain.setValueAtTime(0.12 * this.sfxVolume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+
+      startBgm() {
+        if (this.bgmTimer) return;
+        this.ensureContext();
+
+        let step = 0;
+        const notes = [110, 110, 220, 110, 146.83, 110, 164.81, 130.81]; // A2 bassline
+        this.bgmTimer = setInterval(() => {
+          if (this.isMuted || !this.ctx || this.bgmVolume <= 0) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const filter = this.ctx.createBiquadFilter();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(notes[step % notes.length], now);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(350, now);
+          filter.frequency.exponentialRampToValueAtTime(120, now + 0.12);
+
+          gain.gain.setValueAtTime(0.08 * this.bgmVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.13);
+          step++;
+        }, 130);
+      }
+
+      stopBgm() {
+        if (this.bgmTimer) {
+          clearInterval(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+      }
+    }
+
+    // --- INPUT MANAGER ---
+    class InputManager {
+      constructor(game) {
+        this.game = game;
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+
+        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        window.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        window.addEventListener('mousedown', (e) => this.handleClick(e));
+      }
+
+      handleKeyDown(e) {
+        if (e.code === 'KeyS' || e.code === 'KeyB' || e.code === 'KeyV') {
+          this.game.isStoreOpen = !this.game.isStoreOpen;
+          this.game.isPrivacyOpen = false;
+          this.game.sounds.playClick();
+        } else if (e.code === 'Escape') {
+          if (this.game.isPrivacyOpen) {
+            this.game.isPrivacyOpen = false;
+            this.game.sounds.playClick();
+          } else if (this.game.isStoreOpen) {
+            this.game.isStoreOpen = false;
+            this.game.sounds.playClick();
+          }
+        } else if (!this.game.isStoreOpen && !this.game.isPrivacyOpen) {
+          if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+            this.game.onInputLeft();
+          } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+            this.game.onInputRight();
+          } else if (e.code === 'KeyP') {
+            this.game.togglePause();
+          } else if (e.code === 'KeyR') {
+            this.game.onRestartKey();
+          } else if (e.code === 'Space' || e.code === 'Enter') {
+            this.game.onActionKey();
+          }
+        }
+      }
+
+      handleTouchStart(e) {
+        // Do not block events on HTML form elements or buttons
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'A') {
+          return;
+        }
+
+        if (e.touches.length > 0) {
+          const touch = e.touches[0];
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+
+          if (this.game.checkUIButtonClick(touch.clientX, touch.clientY)) {
+            e.preventDefault();
+            return;
+          }
+
+          if (this.game.isStoreOpen || this.game.isPrivacyOpen) {
+            e.preventDefault();
+            return;
+          }
+
+          if (this.game.state === 'PLAYING') {
+            if (touch.clientX < width / 2) {
+              this.game.onInputLeft();
+            } else {
+              this.game.onInputRight();
+            }
+            e.preventDefault();
+          } else if (this.game.state === 'START' || this.game.state === 'GAMEOVER') {
+            // Check if tap was on the game canvas area only
+            if (e.target.id === 'gameCanvas') {
+              this.game.onActionKey();
+              e.preventDefault();
+            }
+          }
+        }
+      }
+
+      handleClick(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'A') {
+          return;
+        }
+        if (this.game.checkUIButtonClick(e.clientX, e.clientY)) {
+          return;
+        }
+        if (this.game.isStoreOpen) {
+          return;
+        }
+        if (this.game.state === 'START' || this.game.state === 'GAMEOVER') {
+          if (e.target.id === 'gameCanvas') {
+            this.game.onActionKey();
+          }
+        }
+      }
+    }
+
+    // --- PARTICLE ENGINE ---
+    class Particle {
+      constructor() {
+        this.active = false;
+        this.x = 0;
+        this.y = 0;
+        this.vx = 0;
+        this.vy = 0;
+        this.size = 2;
+        this.color = '#00f2ff';
+        this.alpha = 1;
+        this.maxLife = 1;
+        this.life = 0;
+        this.glow = 10;
+      }
+
+      spawn(x, y, vx, vy, size, color, maxLife, glow = 10) {
+        this.active = true;
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.size = size;
+        this.color = color;
+        this.maxLife = maxLife;
+        this.life = maxLife;
+        this.alpha = 1;
+        this.glow = glow;
+      }
+
+      update(dt) {
+        if (!this.active) return;
+        this.life -= dt;
+        if (this.life <= 0) {
+          this.active = false;
+          return;
+        }
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.alpha = Math.max(0, this.life / this.maxLife);
+      }
+
+      draw(ctx) {
+        if (!this.active || this.alpha <= 0) return;
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        if (this.glow > 0) {
+          ctx.shadowBlur = this.glow;
+          ctx.shadowColor = this.color;
+        }
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    class ParticleEngine {
+      constructor(maxParticles = 300) {
+        this.pool = Array.from({ length: maxParticles }, () => new Particle());
+      }
+
+      getFreeParticle() {
+        return this.pool.find(p => !p.active) || null;
+      }
+
+      spawnPickup(x, y) {
+        for (let i = 0; i < 25; i++) {
+          const p = this.getFreeParticle();
+          if (!p) break;
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 80 + Math.random() * 220;
+          const vx = Math.cos(angle) * speed;
+          const vy = Math.sin(angle) * speed;
+          const size = 2 + Math.random() * 4;
+          const color = Math.random() > 0.3 ? '#ffd700' : '#00f2ff';
+          p.spawn(x, y, vx, vy, size, color, 0.4 + Math.random() * 0.4, 15);
+        }
+      }
+
+      spawnCrash(x, y) {
+        for (let i = 0; i < 60; i++) {
+          const p = this.getFreeParticle();
+          if (!p) break;
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 120 + Math.random() * 400;
+          const vx = Math.cos(angle) * speed;
+          const vy = Math.sin(angle) * speed;
+          const size = 3 + Math.random() * 6;
+          const color = Math.random() > 0.4 ? '#fe00fe' : (Math.random() > 0.5 ? '#00f2ff' : '#ffffff');
+          p.spawn(x, y, vx, vy, size, color, 0.6 + Math.random() * 0.6, 20);
+        }
+      }
+
+      spawnExhaust(x, y) {
+        for (let i = 0; i < 2; i++) {
+          const p = this.getFreeParticle();
+          if (!p) break;
+          const vx = (Math.random() - 0.5) * 30;
+          const vy = 80 + Math.random() * 120;
+          const size = 2 + Math.random() * 3;
+          const color = Math.random() > 0.5 ? '#00f2ff' : '#fe00fe';
+          p.spawn(x, y, vx, vy, size, color, 0.2 + Math.random() * 0.2, 10);
+        }
+      }
+
+      spawnAmbientSparks(width, height) {
+        if (Math.random() < 0.3) {
+          const p = this.getFreeParticle();
+          if (p) {
+            const x = Math.random() * width;
+            const y = Math.random() * height * 0.6;
+            const vx = (Math.random() - 0.5) * 20;
+            const vy = 20 + Math.random() * 40;
+            p.spawn(x, y, vx, vy, 1 + Math.random() * 2, '#00f2ff', 1 + Math.random() * 1.5, 8);
+          }
+        }
+      }
+
+      update(dt) {
+        this.pool.forEach(p => p.update(dt));
+      }
+
+      draw(ctx) {
+        this.pool.forEach(p => p.draw(ctx));
+      }
+    }
+
+    // --- ROAD PERSPECTIVE CALCULATOR ---
+    class Road {
+      constructor(game) {
+        this.game = game;
+        this.roadScrollZ = 0;
+      }
+
+      getProjection(z) {
+        const w = this.game.width;
+        const h = this.game.height;
+
+        const horizonY = h * 0.34;
+        const bottomY = h * 0.94;
+        const topWidth = Math.max(120, w * 0.14);
+        const bottomWidth = Math.min(w * 0.88, h * 0.98);
+
+        // Non-linear z depth factor for deep perspective illusion
+        const p = Math.max(0, Math.min(1.2, z));
+        const pFactor = Math.pow(p, 1.35);
+
+        const y = horizonY + pFactor * (bottomY - horizonY);
+        const roadWidth = topWidth + pFactor * (bottomWidth - topWidth);
+        const centerX = w / 2;
+        const scale = 0.12 + pFactor * 0.88;
+
+        return { y, roadWidth, centerX, scale, pFactor, horizonY, bottomY };
+      }
+
+      getLaneX(laneIndex, z) {
+        const proj = this.getProjection(z);
+        // Lane -1 (Left), 0 (Center), 1 (Right) mapped from lane 0, 1, 2
+        const laneOffset = (laneIndex - 1) * 0.31;
+        return proj.centerX + laneOffset * proj.roadWidth;
+      }
+
+      update(dt, speed) {
+        this.roadScrollZ = (this.roadScrollZ + speed * dt * 0.8) % 1.0;
+      }
+
+      draw(ctx) {
+        const w = this.game.width;
+        const h = this.game.height;
+        const proj0 = this.getProjection(0);
+        const proj1 = this.getProjection(1.0);
+
+        // Calculate Speed-Based Hue Shift
+        const speedHue = (this.game.speed - 0.5) * 120; // Hue shifts towards violet/pink at high speed
+
+        // 1. Draw Horizon Background & Cyber Synthwave Sky
+        ctx.save();
+
+        // Sky gradient
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, proj0.horizonY);
+        skyGrad.addColorStop(0, '#151535');
+        skyGrad.addColorStop(0.7, '#2b2c5a');
+        skyGrad.addColorStop(1, `hsl(${260 + speedHue}, 60%, 45%)`); // High brightness
+        ctx.fillStyle = skyGrad;
+        ctx.fillRect(0, 0, w, proj0.horizonY);
+
+        // Distant Horizon Sun/Glow
+        const sunGrad = ctx.createRadialGradient(
+          w / 2, proj0.horizonY, 10,
+          w / 2, proj0.horizonY, w * 0.5
+        );
+        sunGrad.addColorStop(0, `hsla(${180 + speedHue}, 100%, 85%, 0.8)`); // Ultra bright
+        sunGrad.addColorStop(0.4, `hsla(${300 + speedHue}, 100%, 75%, 0.5)`);
+        sunGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = sunGrad;
+        ctx.fillRect(0, 0, w, proj0.horizonY + 10);
+
+        // Cyber Grid Lines on Sky
+        ctx.strokeStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.08)`;
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, proj0.horizonY);
+          ctx.stroke();
+        }
+
+        // City Silhouette with Ultra Vibrant Neon Lighting
+        ctx.fillStyle = '#0f112a';
+        const buildingWidths = [45, 65, 35, 75, 50, 85, 55, 70, 40, 95, 55];
+        const neonColors = ['#fe00fe', '#00f2ff', '#39ff14', '#ffd700', '#ff0055', '#00ffcc'];
+        let bx = 0;
+        let bIdx = 0;
+        while (bx < w) {
+          const bw = buildingWidths[bIdx % buildingWidths.length];
+          const bh = 50 + ((bIdx * 43) % 100);
+          ctx.fillStyle = '#0f112a';
+          ctx.fillRect(bx, proj0.horizonY - bh, bw - 4, bh);
+
+          // Intense Neon Outlines
+          const bColor = neonColors[bIdx % neonColors.length];
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = bColor;
+          ctx.fillStyle = bColor;
+          ctx.fillRect(bx, proj0.horizonY - bh, 3, bh);
+          ctx.fillRect(bx + bw - 7, proj0.horizonY - bh, 3, bh);
+          ctx.fillRect(bx, proj0.horizonY - bh, bw - 4, 3);
+
+          // Vibrant Windows
+          for (let wy = proj0.horizonY - bh + 8; wy < proj0.horizonY - 8; wy += 14) {
+            for (let wx = bx + 6; wx < bx + bw - 10; wx += 12) {
+              if ((wx + wy + bIdx) % 2 === 0) {
+                ctx.fillStyle = neonColors[(bIdx + 1) % neonColors.length];
+                ctx.shadowBlur = 10;
+                ctx.fillRect(wx, wy, 6, 7);
+              }
+            }
+          }
+          bx += bw;
+          bIdx++;
+        }
+
+        // Horizon Line Beam
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, proj0.horizonY);
+        ctx.lineTo(w, proj0.horizonY);
+        ctx.stroke();
+        ctx.restore();
+
+        // 1b. Side Fields
+        ctx.save();
+        const groundGrad = ctx.createLinearGradient(0, proj0.horizonY, 0, h);
+        groundGrad.addColorStop(0, `hsl(${140 + speedHue * 0.5}, 85%, 60%)`);
+        groundGrad.addColorStop(0.5, `hsl(${140 + speedHue * 0.5}, 95%, 70%)`);
+        groundGrad.addColorStop(1, `hsl(${140 + speedHue * 0.5}, 75%, 45%)`);
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(0, proj0.horizonY, w, h - proj0.horizonY);
+
+        // Perspective Grid Lines
+        ctx.strokeStyle = `hsla(${140 + speedHue * 0.5}, 100%, 70%, 0.45)`;
+        ctx.lineWidth = 1.5;
+        for (let xOffset = -w; xOffset <= w * 2; xOffset += 60) {
+          ctx.beginPath();
+          ctx.moveTo(w / 2, proj0.horizonY);
+          ctx.lineTo(xOffset, h);
+          ctx.stroke();
+        }
+        for (let i = 0; i < 18; i++) {
+          const lineZ = (i / 18 + this.roadScrollZ / 18) % 1.0;
+          const pProj = this.getProjection(lineZ);
+          ctx.beginPath();
+          ctx.moveTo(0, pProj.y);
+          ctx.lineTo(w, pProj.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 2. Main Road Surface
+        ctx.save();
+        const roadPolyLeftTop = proj0.centerX - proj0.roadWidth / 2;
+        const roadPolyRightTop = proj0.centerX + proj0.roadWidth / 2;
+        const roadPolyLeftBot = proj1.centerX - proj1.roadWidth / 2;
+        const roadPolyRightBot = proj1.centerX + proj1.roadWidth / 2;
+
+        const roadGrad = ctx.createLinearGradient(0, proj0.horizonY, 0, proj1.bottomY);
+        roadGrad.addColorStop(0, `hsl(${230 + speedHue}, 50%, 25%)`); // Ultra bright road
+        roadGrad.addColorStop(1, `hsl(${230 + speedHue}, 50%, 15%)`);
+        ctx.fillStyle = roadGrad;
+
+        ctx.beginPath();
+        ctx.moveTo(roadPolyLeftTop, proj0.y);
+        ctx.lineTo(roadPolyRightTop, proj0.y);
+        ctx.lineTo(roadPolyRightBot, proj1.y);
+        ctx.lineTo(roadPolyLeftBot, proj1.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // 3. Horizontal Grid Lines
+        ctx.strokeStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.25)`;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 18; i++) {
+          const lineZ = (i / 18 + this.roadScrollZ / 18) % 1.0;
+          const pProj = this.getProjection(lineZ);
+          const lx1 = pProj.centerX - pProj.roadWidth / 2;
+          const lx2 = pProj.centerX + pProj.roadWidth / 2;
+          ctx.beginPath();
+          ctx.moveTo(lx1, pProj.y);
+          ctx.lineTo(lx2, pProj.y);
+          ctx.stroke();
+        }
+
+        // 4. Animated Lane Dividers
+        ctx.save();
+        ctx.strokeStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.65)`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.lineWidth = 2;
+
+        const numDashes = 14;
+        [0.34, 0.66].forEach(laneRatio => {
+          for (let i = 0; i < numDashes; i += 2) {
+            const z1 = Math.max(0, ((i + this.roadScrollZ * 2) / numDashes) % 1.0);
+            const z2 = Math.min(1.0, z1 + 0.04);
+            const pA = this.getProjection(z1);
+            const pB = this.getProjection(z2);
+            const x1 = pA.centerX - pA.roadWidth / 2 + laneRatio * pA.roadWidth;
+            const x2 = pB.centerX - pB.roadWidth / 2 + laneRatio * pB.roadWidth;
+            ctx.beginPath();
+            ctx.moveTo(x1, pA.y);
+            ctx.lineTo(x2, pB.y);
+            ctx.stroke();
+          }
+        });
+        ctx.restore();
+
+        // 5. Side Rails
+        ctx.save();
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.lineWidth = 4;
+
+        ctx.beginPath();
+        ctx.moveTo(roadPolyLeftTop, proj0.y);
+        ctx.lineTo(roadPolyLeftBot, proj1.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(roadPolyRightTop, proj0.y);
+        ctx.lineTo(roadPolyRightBot, proj1.y);
+        ctx.stroke();
+
+        ctx.restore();
+        ctx.restore();
+      }
+    }
+
+    // --- PLAYER VEHICLE ---
+    class Player {
+      constructor(game) {
+        this.game = game;
+        this.lane = 1;
+        this.targetLane = 1;
+        this.currentLanePos = 1.0;
+        this.z = 0.88;
+        this.tilt = 0;
+        this.hoverTimer = 0;
+      }
+
+      reset() {
+        this.lane = 1;
+        this.targetLane = 1;
+        this.currentLanePos = 1.0;
+        this.tilt = 0;
+        this.hoverTimer = 0;
+      }
+
+      moveLeft() {
+        if (this.targetLane > 0) {
+          this.targetLane--;
+          this.game.sounds.playLaneSwitch();
+          this.game.triggerCameraBounce();
+        }
+      }
+
+      moveRight() {
+        if (this.targetLane < 2) {
+          this.targetLane++;
+          this.game.sounds.playLaneSwitch();
+          this.game.triggerCameraBounce();
+        }
+      }
+
+      update(dt) {
+        this.hoverTimer += dt * 5;
+        const diff = this.targetLane - this.currentLanePos;
+        this.currentLanePos += diff * Math.min(1.0, dt * 14);
+        this.tilt = -diff * 0.35;
+      }
+
+      draw(ctx, road) {
+        const proj = road.getProjection(this.z);
+        const laneOffset = (this.currentLanePos - 1) * 0.31;
+        const x = proj.centerX + laneOffset * proj.roadWidth;
+        const hoverY = Math.sin(this.hoverTimer) * 5;
+        const y = proj.y + hoverY;
+        const scale = proj.scale * 1.1;
+
+        const speedHue = (this.game.speed - 0.5) * 120;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(this.tilt);
+
+        ctx.save();
+        ctx.scale(1, 0.3);
+        ctx.fillStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.25)`;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.beginPath();
+        ctx.arc(0, 60, 45 * scale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        this.game.particles.spawnExhaust(x, y + 25 * scale);
+
+        const planeW = 64 * scale;
+        const planeH = 82 * scale;
+
+        const lightGrad = ctx.createLinearGradient(0, 0, 0, -220 * scale);
+        lightGrad.addColorStop(0, `hsla(${180 + speedHue}, 100%, 50%, 0.45)`);
+        lightGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = lightGrad;
+        ctx.beginPath();
+        ctx.moveTo(-12 * scale, -20 * scale);
+        ctx.lineTo(-45 * scale, -220 * scale);
+        ctx.lineTo(45 * scale, -220 * scale);
+        ctx.lineTo(12 * scale, -20 * scale);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.save();
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+
+        ctx.fillStyle = '#0f1424';
+        ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -planeH * 0.4);
+        ctx.lineTo(planeW * 0.5, planeH * 0.15);
+        ctx.lineTo(planeW * 0.48, planeH * 0.28);
+        ctx.lineTo(planeW * 0.15, planeH * 0.25);
+        ctx.lineTo(-planeW * 0.15, planeH * 0.25);
+        ctx.lineTo(-planeW * 0.48, planeH * 0.28);
+        ctx.lineTo(-planeW * 0.5, planeH * 0.15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#39ff14';
+        ctx.shadowColor = '#39ff14';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(planeW * 0.5, planeH * 0.15, 3 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ff2a2a';
+        ctx.shadowColor = '#ff2a2a';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(-planeW * 0.5, planeH * 0.15, 3 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#fe00fe';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(planeW * 0.18, planeH * 0.1, 8 * scale, 22 * scale);
+        ctx.strokeRect(planeW * 0.18, planeH * 0.1, 8 * scale, 22 * scale);
+        ctx.fillRect(-planeW * 0.18 - 8 * scale, planeH * 0.1, 8 * scale, 22 * scale);
+        ctx.strokeRect(-planeW * 0.18 - 8 * scale, planeH * 0.1, 8 * scale, 22 * scale);
+
+        ctx.fillStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowBlur = 15;
+        ctx.fillRect(planeW * 0.19, planeH * 0.1 + 22 * scale, 6 * scale, 12 * scale);
+        ctx.fillRect(-planeW * 0.19 - 6 * scale, planeH * 0.1 + 22 * scale, 6 * scale, 12 * scale);
+
+        const fuseGrad = ctx.createLinearGradient(0, -planeH * 0.5, 0, planeH * 0.5);
+        fuseGrad.addColorStop(0, '#e0f2fe');
+        fuseGrad.addColorStop(0.3, '#0284c7');
+        fuseGrad.addColorStop(0.8, '#0f172a');
+        fuseGrad.addColorStop(1, '#020617');
+        ctx.fillStyle = fuseGrad;
+        ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -planeH * 0.52);
+        ctx.lineTo(planeW * 0.14, -planeH * 0.3);
+        ctx.lineTo(planeW * 0.15, planeH * 0.35);
+        ctx.lineTo(planeW * 0.22, planeH * 0.48);
+        ctx.lineTo(0, planeH * 0.45);
+        ctx.lineTo(-planeW * 0.22, planeH * 0.48);
+        ctx.lineTo(-planeW * 0.15, planeH * 0.35);
+        ctx.lineTo(-planeW * 0.14, -planeH * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.ellipse(0, -planeH * 0.2, 5 * scale, 14 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.ellipse(0, -planeH * 0.22, 2 * scale, 6 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#fe00fe';
+        ctx.shadowColor = '#fe00fe';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(0, planeH * 0.02);
+        ctx.lineTo(3 * scale, planeH * 0.42);
+        ctx.lineTo(-3 * scale, planeH * 0.42);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+        ctx.restore();
+      }
+    }
+
+    // --- OBSTACLE ---
+    class Obstacle {
+      constructor(lane, z) {
+        this.lane = lane;
+        this.z = z;
+        this.active = true;
+        this.pulse = Math.random() * Math.PI * 2;
+      }
+
+      update(dt, speed) {
+        this.z += speed * dt * 0.8;
+        this.pulse += dt * 6;
+        if (this.z > 1.15) {
+          this.active = false;
+        }
+      }
+
+      draw(ctx, road) {
+        if (!this.active || this.z < 0 || this.z > 1.1) return;
+        const proj = road.getProjection(this.z);
+        const x = road.getLaneX(this.lane, this.z);
+        const y = proj.y;
+        const scale = proj.scale;
+        const cubeW = 50 * scale;
+        const cubeH = 50 * scale;
+        const depth = 35 * scale;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = '#fe00fe';
+
+        ctx.save();
+        ctx.scale(1, 0.3);
+        ctx.fillStyle = 'rgba(254, 0, 254, 0.3)';
+        ctx.beginPath();
+        ctx.arc(0, 20, cubeW * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        const topY = -cubeH;
+        ctx.fillStyle = 'rgba(25, 5, 25, 0.88)';
+        ctx.strokeStyle = '#fe00fe';
+        ctx.lineWidth = 2 * Math.max(1, scale);
+
+        ctx.beginPath();
+        ctx.rect(-cubeW / 2, topY, cubeW, cubeH);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(60, 10, 60, 0.85)';
+        ctx.beginPath();
+        ctx.moveTo(-cubeW / 2, topY);
+        ctx.lineTo(-cubeW / 2 + depth * 0.4, topY - depth * 0.4);
+        ctx.lineTo(cubeW / 2 + depth * 0.4, topY - depth * 0.4);
+        ctx.lineTo(cubeW / 2, topY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(40, 8, 40, 0.9)';
+        ctx.beginPath();
+        ctx.moveTo(cubeW / 2, topY);
+        ctx.lineTo(cubeW / 2 + depth * 0.4, topY - depth * 0.4);
+        ctx.lineTo(cubeW / 2 + depth * 0.4, topY - depth * 0.4 + cubeH);
+        ctx.lineTo(cubeW / 2, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffabf3';
+        ctx.font = `bold ${Math.max(10, Math.floor(22 * scale))}px "JetBrains Mono", monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', 0, topY + cubeH / 2);
+
+        ctx.restore();
+      }
+    }
+
+    // --- NANITE ---
+    class Nanite {
+      constructor(lane, z) {
+        this.lane = lane;
+        this.z = z;
+        this.active = true;
+        this.collected = false;
+        this.rotation = Math.random() * Math.PI;
+      }
+
+      update(dt, speed) {
+        this.z += speed * dt * 0.8;
+        this.rotation += dt * 4;
+        if (this.z > 1.15) {
+          this.active = false;
+        }
+      }
+
+      draw(ctx, road) {
+        if (!this.active || this.collected || this.z < 0 || this.z > 1.1) return;
+        const proj = road.getProjection(this.z);
+        const x = road.getLaneX(this.lane, this.z);
+        const hoverY = Math.sin(this.rotation * 2) * 6 * proj.scale;
+        const y = proj.y - 25 * proj.scale + hoverY;
+        const scale = proj.scale;
+        const radius = 18 * scale;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ffd700';
+
+        const auraGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, radius * 1.8);
+        auraGrad.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
+        auraGrad.addColorStop(0.5, 'rgba(255, 170, 0, 0.4)');
+        auraGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = auraGrad;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.rotate(this.rotation);
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2 * Math.max(1, scale);
+        ctx.beginPath();
+        ctx.moveTo(0, -radius);
+        ctx.lineTo(radius * 0.7, 0);
+        ctx.lineTo(0, radius);
+        ctx.lineTo(-radius * 0.7, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // --- HUD ---
+    class HUD {
+      constructor(game) {
+        this.game = game;
+      }
+
+      draw(ctx) {
+        const w = this.game.width;
+        const h = this.game.height;
+        ctx.save();
+        if (this.game.state === 'PLAYING' || this.game.state === 'PAUSED') {
+          this.drawGameplayHUD(ctx, w, h);
+        }
+        if (this.game.state === 'START') this.drawStartScreen(ctx, w, h);
+        else if (this.game.state === 'PAUSED') this.drawPauseOverlay(ctx, w, h);
+        else if (this.game.state === 'GAMEOVER') this.drawGameOverScreen(ctx, w, h);
+
+        ctx.restore();
+      }
+
+      drawGlassPanel(ctx, x, y, width, height, borderColor = '#00f2ff', bgColor = 'rgba(15, 17, 26, 0.65)') {
+        ctx.save();
+        ctx.fillStyle = bgColor;
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = borderColor;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, width, height, 8);
+        } else {
+          ctx.rect(x, y, width, height);
+        }
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawGameplayHUD(ctx, w, h) {
+        const margin = 20;
+        this.drawGlassPanel(ctx, margin, margin, 180, 52, '#00f2ff');
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#b9cacb';
+        ctx.fillText('DISTANCE', margin + 14, margin + 18);
+        ctx.font = 'bold 20px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#00f2ff';
+        ctx.fillText(Math.floor(this.game.distance).toLocaleString() + ' M', margin + 14, margin + 40);
+
+        const centerW = 160;
+        this.drawGlassPanel(ctx, w / 2 - centerW / 2, margin, centerW, 52, '#00f2ff');
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#b9cacb';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText('SPEED', w / 2, margin + 18);
+        ctx.font = 'bold 20px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#e1fdff';
+        ctx.fillText(Math.floor(this.game.speed * 280) + ' KM/H', w / 2, margin + 40);
+
+        const rightW = 150;
+        const rightX = w - margin - rightW;
+        this.drawGlassPanel(ctx, rightX, margin, rightW, 52, '#ffd700');
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#b9cacb';
+        ctx.fillText('NANITES', rightX + 14, margin + 18);
+        ctx.font = 'bold 20px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ffd700';
+        ctx.fillText(this.game.nanitesCollected.toString(), rightX + 14, margin + 40);
+
+        const pauseSize = 44;
+        const pauseX = w - margin - pauseSize;
+        const pauseY = margin + 62;
+        this.pauseBtnBounds = { x: pauseX, y: pauseY, w: pauseSize, h: pauseSize };
+        this.drawGlassPanel(ctx, pauseX, pauseY, pauseSize, pauseSize, '#00f2ff');
+        ctx.fillStyle = '#00f2ff';
+        ctx.fillRect(pauseX + 14, pauseY + 13, 5, 18);
+        ctx.fillRect(pauseX + 25, pauseY + 13, 5, 18);
+
+        const storeW = 150;
+        const storeH = 44;
+        const storeX = pauseX - 12 - storeW;
+        this.storeBtnBounds = { x: storeX, y: margin + 62, w: storeW, h: storeH };
+        this.drawGlassPanel(ctx, storeX, margin + 62, storeW, storeH, '#ffd700', 'rgba(25, 20, 5, 0.7)');
+        ctx.font = 'bold 12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ffd700';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡ UPGRADE NANITES', storeX + storeW / 2, margin + 62 + 26);
+
+        // Settings Button
+        const settingsSize = 44;
+        const settingsX = margin;
+        const settingsY = margin + 62;
+        this.settingsBtnBounds = { x: settingsX, y: settingsY, w: settingsSize, h: settingsSize };
+        this.drawGlassPanel(ctx, settingsX, settingsY, settingsSize, settingsSize, '#00f2ff');
+        ctx.font = '16px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#00f2ff';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚙️', settingsX + 22, settingsY + 28);
+      }
+
+      drawStartScreen(ctx, w, h) {
+        ctx.fillStyle = 'rgba(5, 5, 10, 0.75)';
+        ctx.fillRect(0, 0, w, h);
+        const cardW = Math.min(w * 0.88, 520);
+        const cardH = 350;
+        const cardX = w / 2 - cardW / 2;
+        const cardY = h / 2 - cardH / 2;
+        this.drawGlassPanel(ctx, cardX, cardY, cardW, cardH, '#00f2ff', 'rgba(12, 14, 25, 0.88)');
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 28px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#fe00fe';
+        ctx.fillText('NEON SPRINT', w / 2, cardY + 48);
+        ctx.font = 'bold 16px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#00f2ff';
+        ctx.fillText('CYBER PROTOCOL', w / 2, cardY + 76);
+        const btnW = cardW - 50;
+        const btnH = 58;
+        this.initRunBtnBounds = { x: w / 2 - btnW / 2, y: cardY + 258, w: btnW, h: btnH };
+        this.drawGlassPanel(ctx, this.initRunBtnBounds.x, this.initRunBtnBounds.y, btnW, btnH, '#00f2ff', 'rgba(0, 242, 255, 0.2)');
+        ctx.font = 'bold 15px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('⇒ CLICK OR TAP TO START ⇐', w / 2, cardY + 258 + 35);
+      }
+
+      drawPauseOverlay(ctx, w, h) {
+        ctx.fillStyle = 'rgba(5, 5, 10, 0.75)';
+        ctx.fillRect(0, 0, w, h);
+        this.drawGlassPanel(ctx, w / 2 - 190, h / 2 - 120, 380, 240, '#00f2ff', 'rgba(12, 14, 25, 0.9)');
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 24px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#00f2ff';
+        ctx.fillText('SYSTEM PAUSED', w / 2, h / 2 - 65);
+      }
+
+      drawGameOverScreen(ctx, w, h) {
+        // Transparent overlay to keep colors bright - minimal opacity
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fillRect(0, 0, w, h);
+        const cardW = Math.min(w * 0.65, 240); // Much smaller card
+        const cardH = 220; // Much smaller card
+        const cardX = w / 2 - cardW / 2;
+        const cardY = h / 2 - cardH / 2;
+        this.drawGlassPanel(ctx, cardX, cardY, cardW, cardH, '#fe00fe', 'rgba(15, 8, 20, 0.9)');
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 16px "JetBrains Mono", monospace'; // Smaller font
+        ctx.fillStyle = '#fe00fe';
+        ctx.fillText('SYSTEM BREACH', w / 2, cardY + 36);
+        this.restartBtnBounds = { x: w / 2 - 80, y: cardY + cardH - 42, w: 160, h: 28 }; // Smaller button
+        this.drawGlassPanel(ctx, this.restartBtnBounds.x, this.restartBtnBounds.y, 160, 28, '#00f2ff', '#00f2ff');
+        ctx.fillStyle = '#002022';
+        ctx.font = 'bold 10px "JetBrains Mono", monospace'; // Smaller font
+        ctx.fillText('RESTART SYSTEM', w / 2, cardY + cardH - 24);
+      }
+    }
+
+    // --- MAIN GAME ENGINE ---
+    class Game {
+      constructor() {
+        try {
+          this.canvas = document.getElementById('gameCanvas');
+          if (!this.canvas) throw new Error("Canvas not found");
+          this.ctx = this.canvas.getContext('2d');
+          this.width = window.innerWidth || 360;
+          this.height = window.innerHeight || 640;
+
+          this.accountManager = new AccountManager();
+          this.sounds = new SoundManager();
+          this.particles = new ParticleEngine();
+          this.road = new Road(this);
+          this.player = new Player(this);
+          this.hud = new HUD(this);
+          this.input = new InputManager(this);
+          this.state = 'START';
+          this.isStoreOpen = false;
+          this.isPrivacyOpen = false;
+          this.distance = 0;
+          this.speed = 0.5;
+          this.nanitesCollected = 0;
+          this.bestDistance = 0;
+          try {
+            this.bestDistance = parseFloat(localStorage.getItem('neonsprint_best') || '0');
+          } catch(e) {}
+
+          this.obstacles = [];
+          this.nanites = [];
+          this.spawnTimer = 0;
+          this.naniteSpawnTimer = 0;
+          this.cameraShake = 0;
+          this.flashAlpha = 0;
+          this.lastTime = (performance && performance.now) ? performance.now() : Date.now();
+
+          this.selectedPkgId = 1;
+          this.selectedCurrency = 'USD';
+          this.selectedPaymentMethod = 'card';
+
+          this.resize();
+          window.addEventListener('resize', () => this.resize());
+          this.updateAccountHUD();
+          this.syncVolumeUI();
+
+          const animate = (t) => {
+            this.loop(t);
+            requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        } catch(e) {
+          console.error("Game Init Error:", e);
+        }
+      }
+
+      syncVolumeUI() {
+        const bgmS = document.getElementById('bgmVolumeSlider');
+        const sfxS = document.getElementById('sfxVolumeSlider');
+        const bgmD = document.getElementById('bgmVolumeDisplay');
+        const sfxD = document.getElementById('sfxVolumeDisplay');
+
+        if (bgmS) bgmS.value = this.sounds.bgmVolume * 100;
+        if (sfxS) sfxS.value = this.sounds.sfxVolume * 100;
+        if (bgmD) bgmD.innerText = Math.round(this.sounds.bgmVolume * 100) + '%';
+        if (sfxD) sfxD.innerText = Math.round(this.sounds.sfxVolume * 100) + '%';
+      }
+
+      updateBgmVolume(val) {
+        const v = val / 100;
+        this.sounds.setBgmVolume(v);
+        document.getElementById('bgmVolumeDisplay').innerText = val + '%';
+      }
+
+      updateSfxVolume(val) {
+        const v = val / 100;
+        this.sounds.setSfxVolume(v);
+        document.getElementById('sfxVolumeDisplay').innerText = val + '%';
+      }
+
+      updateAccountHUD() {
+        const u = this.accountManager.getActiveUser();
+        const userDisp = document.getElementById('accountUserDisplay');
+        const naniteDisp = document.getElementById('accountNaniteDisplay');
+        const freeDisp = document.getElementById('freeExtractedDisplay');
+        const freeSpan = document.getElementById('freeExtractedSpan');
+        const accBtn = document.getElementById('accountBtn');
+        if (u) {
+          const data = this.accountManager.getAccountData(u);
+          if (userDisp) userDisp.innerText = u.toUpperCase();
+          if (naniteDisp) naniteDisp.innerText = Math.floor(data.nanites).toLocaleString();
+
+          if (freeDisp) freeDisp.innerText = data.freeExtracted || 0;
+          if (freeSpan) {
+            // Display for the first 50 Nanites collection, then hide
+            freeSpan.style.display = (data.freeExtracted >= 50) ? 'none' : 'inline';
+          }
+
+          if (accBtn) accBtn.innerHTML = '🚪 LOGOUT';
+        } else {
+          if (userDisp) userDisp.innerText = 'GUEST';
+          if (naniteDisp) naniteDisp.innerText = '0';
+          if (freeSpan) freeSpan.style.display = 'inline';
+          if (accBtn) accBtn.innerHTML = '🔑 LOGIN';
+        }
+      }
+
+      toggleAccountModal() {
+        const u = this.accountManager.getActiveUser();
+        if (u) {
+          this.accountManager.logout();
+          this.updateAccountHUD();
+          this.sounds.playClick();
+        } else {
+          // Clear previous error and inputs
+          const errorMsg = document.getElementById('authErrorMsg');
+          if (errorMsg) errorMsg.style.display = 'none';
+          document.getElementById('authUsername').value = '';
+          document.getElementById('authPassword').value = '';
+          document.getElementById('loginModal').classList.add('active');
+          this.authTab = 'login';
+          this.switchAuthTab('login');
+          this.sounds.playClick();
+        }
+      }
+
+      switchAuthTab(tab) {
+        this.authTab = tab;
+        const loginBtn = document.getElementById('tabLoginBtn');
+        const signupBtn = document.getElementById('tabSignupBtn');
+        const submitBtn = document.getElementById('authSubmitBtn');
+        const errorMsg = document.getElementById('authErrorMsg');
+
+        if (errorMsg) errorMsg.style.display = 'none';
+
+        if (tab === 'login') {
+          loginBtn.classList.add('active');
+          signupBtn.classList.remove('active');
+          submitBtn.innerText = '⚡ ENTER CYBER SYSTEM';
+        } else {
+          loginBtn.classList.remove('active');
+          signupBtn.classList.add('active');
+          submitBtn.innerText = '⚡ REGISTER PROTOCOL';
+        }
+        this.sounds.playClick();
+      }
+
+      handleAuthSubmit() {
+        const u = document.getElementById('authUsername').value;
+        const p = document.getElementById('authPassword').value;
+        const errorMsg = document.getElementById('authErrorMsg');
+
+        const res = this.authTab === 'signup' ? this.accountManager.signup(u, p) : this.accountManager.login(u, p);
+
+        if (res.success) {
+          document.getElementById('loginModal').classList.remove('active');
+          this.updateAccountHUD();
+          this.sounds.playPickup();
+        } else {
+          if (errorMsg) {
+            errorMsg.innerText = res.msg;
+            errorMsg.style.display = 'block';
+          }
+          this.sounds.playCrash();
+        }
+      }
+
+      resize() {
+        try {
+          const dpr = Math.min(3, window.devicePixelRatio || 1);
+          this.width = window.innerWidth || 360;
+          this.height = window.innerHeight || 640;
+          this.canvas.width = this.width * dpr;
+          this.canvas.height = this.height * dpr;
+          if (this.ctx) {
+            this.ctx.scale(dpr, dpr);
+          }
+        } catch(e) {
+          console.error("Resize Error:", e);
+        }
+      }
+
+      startNewGame() {
+        const u = this.accountManager.getActiveUser();
+        if (!u) { document.getElementById('loginModal').classList.add('active'); return; }
+        const data = this.accountManager.getAccountData(u);
+
+        // Block start if free limit reached and no balance left
+        if (data.freeExtracted >= 50 && data.nanites <= 0) {
+          document.getElementById('flashNoticeModal').classList.add('active');
+          return;
+        }
+
+        this.sounds.playClick(); this.sounds.startBgm();
+        this.state = 'PLAYING'; this.distance = 0; this.speed = 0.5; this.nanitesCollected = data.nanites;
+        this.obstacles = []; this.nanites = []; this.spawnTimer = 0; this.player.reset();
+      }
+
+      togglePause() {
+        if (this.state === 'PLAYING') { this.state = 'PAUSED'; this.sounds.stopBgm(); }
+        else if (this.state === 'PAUSED') { this.state = 'PLAYING'; this.sounds.startBgm(); }
+      }
+
+      onInputLeft() { if (this.state === 'PLAYING') this.player.moveLeft(); }
+      onInputRight() { if (this.state === 'PLAYING') this.player.moveRight(); }
+      onActionKey() { if (this.state === 'START' || this.state === 'GAMEOVER') this.startNewGame(); }
+      onRestartKey() { if (this.state !== 'START') this.startNewGame(); }
+
+      openStoreFromNotice() {
+        document.getElementById('flashNoticeModal').classList.remove('active');
+        document.getElementById('storeModal').classList.add('active');
+        this.sounds.playClick();
+      }
+
+      selectCurrency(curr) {
+        this.selectedCurrency = curr;
+        this.sounds.playClick();
+        const btns = document.querySelectorAll('.curr-btn');
+        btns.forEach(b => {
+          b.classList.remove('active');
+          if (b.innerText.includes(curr)) b.classList.add('active');
+        });
+        this.updateStorePrices();
+      }
+
+      updateStorePrices() {
+        const rates = { USD: 1, EUR: 0.92, GBP: 0.78, INR: 83.5, JPY: 155, CAD: 1.36, AUD: 1.51 };
+        const symbols = { USD: '$', EUR: '€', GBP: '£', INR: '₹', JPY: '¥', CAD: '$', AUD: '$' };
+        const r = rates[this.selectedCurrency || 'USD'];
+        const s = symbols[this.selectedCurrency || 'USD'];
+
+        const pkgs = [
+          { id: 1, base: 0.99 },
+          { id: 2, base: 2.99 },
+          { id: 3, base: 4.99 }
+        ];
+
+        pkgs.forEach(p => {
+          const el = document.getElementById(`priceTag${p.id}`);
+          if (el) el.innerText = `BUY ${s}${(p.base * r).toFixed(2)}`;
+        });
+
+        this.updatePayActionBtn();
+      }
+
+      buyPkgDirect(id) {
+        this.selectedPkgId = id;
+        this.sounds.playClick();
+        const cards = document.querySelectorAll('.cyber-pkg-card');
+        cards.forEach(c => c.classList.remove('selected'));
+        const selectedCard = document.getElementById(`pkgCard${id}`);
+        if (selectedCard) selectedCard.classList.add('selected');
+        this.updatePayActionBtn();
+      }
+
+      updatePayActionBtn() {
+        const pkgs = { 1: { name: 'STARTER', price: 0.99 }, 2: { name: 'CYBER PACK', price: 2.99 }, 3: { name: 'ULTRA VAULT', price: 4.99 } };
+        const rates = { USD: 1, EUR: 0.92, GBP: 0.78, INR: 83.5, JPY: 155, CAD: 1.36, AUD: 1.51 };
+        const symbols = { USD: '$', EUR: '€', GBP: '£', INR: '₹', JPY: '¥', CAD: '$', AUD: '$' };
+
+        const pkg = pkgs[this.selectedPkgId || 1];
+        const r = rates[this.selectedCurrency || 'USD'];
+        const s = symbols[this.selectedCurrency || 'USD'];
+        const price = (pkg.price * r).toFixed(2);
+
+        const btn = document.getElementById('payActionBtn');
+        if (btn) btn.innerText = `⚡ BUY ${s}${price} - UPGRADE NANITES`;
+      }
+
+      openPaymentGateway() {
+        this.sounds.playClick();
+        const pkgs = { 1: { name: 'STARTER', nanites: 1000, price: 0.99 }, 2: { name: 'CYBER PACK', nanites: 5000, price: 2.99 }, 3: { name: 'ULTRA VAULT', nanites: 20000, price: 4.99 } };
+        const rates = { USD: 1, EUR: 0.92, GBP: 0.78, INR: 83.5, JPY: 155, CAD: 1.36, AUD: 1.51 };
+        const symbols = { USD: '$', EUR: '€', GBP: '£', INR: '₹', JPY: '¥', CAD: '$', AUD: '$' };
+
+        const pkg = pkgs[this.selectedPkgId || 1];
+        const r = rates[this.selectedCurrency || 'USD'];
+        const s = symbols[this.selectedCurrency || 'USD'];
+
+        document.getElementById('gatewayPkgTitle').innerText = `${pkg.name} (+${pkg.nanites.toLocaleString()} NANITES)`;
+        document.getElementById('gatewayPkgPrice').innerText = `${s}${(pkg.price * r).toFixed(2)} ${this.selectedCurrency || 'USD'}`;
+
+        document.getElementById('paymentGatewayModal').classList.add('active');
+      }
+
+      selectPaymentMethod(method) {
+        this.selectedPaymentMethod = method;
+        this.sounds.playClick();
+        const btns = document.querySelectorAll('.gateway-method-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        const methodBtn = document.getElementById(`pmBtn${method.charAt(0).toUpperCase() + method.slice(1)}`);
+        if (methodBtn) methodBtn.classList.add('active');
+
+        const fields = ['Card', 'Netbank', 'Upi', 'Razorpay', 'PayPal', 'Mailpay'];
+        fields.forEach(f => {
+          const fieldEl = document.getElementById(`pmFields${f}`);
+          if (fieldEl) fieldEl.style.display = (f.toLowerCase() === method) ? 'block' : 'none';
+        });
+      }
+
+      submitPaymentGateway() {
+        this.sounds.playClick();
+        const status = document.getElementById('gatewayStatusMsg');
+        if (status) {
+          status.style.display = 'block';
+          status.innerText = '🔒 INITIALIZING SECURE TRANSACTION...';
+        }
+
+        const pkgs = {
+          1: { name: 'STARTER', nanites: 1000, price: 0.99 },
+          2: { name: 'CYBER PACK', nanites: 5000, price: 2.99 },
+          3: { name: 'ULTRA VAULT', nanites: 20000, price: 4.99 }
+        };
+        const rates = { USD: 1, EUR: 0.92, GBP: 0.78, INR: 83.5, JPY: 155, CAD: 1.36, AUD: 1.51 };
+
+        const pkg = pkgs[this.selectedPkgId || 1];
+        const r = rates[this.selectedCurrency || 'USD'];
+        const amount = pkg.price * r;
+        const currency = this.selectedCurrency || 'USD';
+
+        // Get user info if available for prefill
+        const activeUser = this.accountManager.getActiveUser() || "Guest";
+
+        // Use placeholder for email/contact if not provided by user
+        // In a real app, you might want to ask for these or get them from account data
+        const email = "player@neonsprint.com";
+        const contact = "9999999999";
+
+        // Call Native Android Interface
+        if (window.Android && typeof window.Android.startPayment === 'function') {
+          window.Android.startPayment(pkg.name, amount, currency, email, contact);
+        } else {
+          // Fallback for testing in browser (still mock)
+          console.warn("Native Android interface not found. Using fallback mock.");
+          setTimeout(() => {
+            if (status) status.innerText = '✅ TRANSACTION SUCCESSFUL! DEPOSITING NANITES...';
+            setTimeout(() => {
+              document.getElementById('paymentGatewayModal').classList.remove('active');
+              document.getElementById('storeModal').classList.remove('active');
+              this.processPaymentSuccess();
+              if (status) status.style.display = 'none';
+            }, 1500);
+          }, 2000);
+        }
+      }
+
+      onPaymentGatewaySuccess(paymentId) {
+        const status = document.getElementById('gatewayStatusMsg');
+        if (status) {
+          status.style.display = 'block';
+          status.innerText = '✅ SUCCESS! PAYMENT ID: ' + paymentId;
+        }
+
+        setTimeout(() => {
+          document.getElementById('paymentGatewayModal').classList.remove('active');
+          document.getElementById('storeModal').classList.remove('active');
+          this.processPaymentSuccess();
+          if (status) status.style.display = 'none';
+        }, 1500);
+      }
+
+      onPaymentGatewayError(code, message) {
+        const status = document.getElementById('gatewayStatusMsg');
+        if (status) {
+          status.style.display = 'block';
+          status.style.color = '#fe00fe';
+          status.style.borderColor = '#fe00fe';
+          status.innerText = '❌ PAYMENT FAILED: ' + message;
+        }
+        setTimeout(() => {
+          if (status) status.style.display = 'none';
+        }, 4000);
+      }
+
+      processPaymentSuccess() {
+        const pkgs = { 1: 1000, 2: 5000, 3: 20000 };
+        const amount = pkgs[this.selectedPkgId || 1];
+        const u = this.accountManager.getActiveUser();
+        if (u) {
+          const data = this.accountManager.getAccountData(u);
+          const newTotal = (data.nanites || 0) + amount;
+          this.accountManager.updateAccountData(u, { nanites: newTotal });
+          this.nanitesCollected = newTotal;
+          this.updateAccountHUD();
+
+          const successMsg = document.getElementById('paymentSuccessMsg');
+          if (successMsg) {
+            successMsg.style.display = 'block';
+            successMsg.innerText = `SUCCESS! +${amount.toLocaleString()} NANITES ADDED TO YOUR VAULT.`;
+            setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+          }
+
+          if (this.state === 'PAUSED') {
+            this.togglePause();
+          }
+        }
+      }
+
+      checkUIButtonClick(x, y) {
+        const h = this.hud;
+        if (this.isPrivacyOpen) { this.isPrivacyOpen = false; return true; }
+        if (this.isStoreOpen) { this.isStoreOpen = false; return true; }
+
+        if (h.settingsBtnBounds && x >= h.settingsBtnBounds.x && x <= h.settingsBtnBounds.x + h.settingsBtnBounds.w && y >= h.settingsBtnBounds.y && y <= h.settingsBtnBounds.y + h.settingsBtnBounds.h) {
+          document.getElementById('settingsModal').classList.add('active');
+          this.sounds.playClick();
+          return true;
+        }
+
+        if (this.state === 'START' && h.initRunBtnBounds && x >= h.initRunBtnBounds.x && x <= h.initRunBtnBounds.x + h.initRunBtnBounds.w && y >= h.initRunBtnBounds.y && y <= h.initRunBtnBounds.y + h.initRunBtnBounds.h) { this.startNewGame(); return true; }
+        if (h.storeBtnBounds && x >= h.storeBtnBounds.x && x <= h.storeBtnBounds.x + h.storeBtnBounds.w && y >= h.storeBtnBounds.y && y <= h.storeBtnBounds.y + h.storeBtnBounds.h) { this.isStoreOpen = true; return true; }
+        if (this.state === 'GAMEOVER' && h.restartBtnBounds && x >= h.restartBtnBounds.x && x <= h.restartBtnBounds.x + h.restartBtnBounds.w && y >= h.restartBtnBounds.y && y <= h.restartBtnBounds.y + h.restartBtnBounds.h) { this.startNewGame(); return true; }
+        if (this.state === 'PLAYING' && h.pauseBtnBounds && x >= h.pauseBtnBounds.x && x <= h.pauseBtnBounds.x + h.pauseBtnBounds.w && y >= h.pauseBtnBounds.y && y <= h.pauseBtnBounds.y + h.pauseBtnBounds.h) { this.togglePause(); return true; }
+        return false;
+      }
+
+      triggerCameraBounce() { this.cameraShake = 6; }
+
+      update(dt) {
+        if (this.state === 'PLAYING') {
+          const prevDist = this.distance;
+          this.speed = Math.min(1.6, 0.5 + (this.distance / 12000));
+          this.distance += this.speed * dt * 110;
+
+          // Fuel / Pack Consumption Logic
+          const activeUser = this.accountManager.getActiveUser();
+          if (activeUser) {
+            const data = this.accountManager.getAccountData(activeUser);
+            if (data.freeExtracted >= 50) {
+              // Consume 1 Nanite per 50 meters traveled
+              const consumed = (this.distance - prevDist) / 50;
+              let currentNanites = data.nanites || 0;
+              currentNanites = Math.max(0, currentNanites - consumed);
+
+              this.accountManager.updateAccountData(activeUser, { nanites: currentNanites });
+              this.nanitesCollected = currentNanites;
+              this.updateAccountHUD();
+
+              if (currentNanites <= 0) {
+                this.state = 'PAUSED';
+                this.sounds.stopBgm();
+                document.getElementById('flashNoticeModal').classList.add('active');
+              }
+            }
+          }
+
+          this.road.update(dt, this.speed);
+          this.player.update(dt);
+          this.spawnTimer += dt;
+          if (this.spawnTimer > Math.max(0.6, 1.6 - (this.speed - 0.5) * 0.8)) { this.spawnTimer = 0; this.obstacles.push(new Obstacle(Math.floor(Math.random() * 3), 0)); }
+          this.naniteSpawnTimer += dt;
+          if (this.naniteSpawnTimer > 0.8) { this.naniteSpawnTimer = 0; if (Math.random() < 0.6) this.nanites.push(new Nanite(Math.floor(Math.random() * 3), 0)); }
+          this.obstacles.forEach(o => o.update(dt, this.speed));
+          this.nanites.forEach(n => n.update(dt, this.speed));
+          this.obstacles = this.obstacles.filter(o => o.active);
+          this.nanites = this.nanites.filter(n => n.active && !n.collected);
+          this.checkCollisions();
+        }
+        this.particles.update(dt);
+        this.cameraShake = Math.max(0, this.cameraShake - dt * 30);
+        this.flashAlpha = Math.max(0, this.flashAlpha - dt * 2.5);
+      }
+
+      checkCollisions() {
+        for (let o of this.obstacles) if (Math.abs(o.z - this.player.z) < 0.055 && Math.abs(o.lane - this.player.currentLanePos) < 0.52) this.onCrash();
+        for (let n of this.nanites) {
+          if (!n.collected && Math.abs(n.z - this.player.z) < 0.065 && Math.abs(n.lane - this.player.currentLanePos) < 0.6) {
+            n.collected = true;
+
+            const activeUser = this.accountManager.getActiveUser();
+            if (activeUser) {
+              const data = this.accountManager.getAccountData(activeUser);
+              let freeEx = data.freeExtracted || 0;
+              let currentNanites = data.nanites || 0;
+
+              if (freeEx < 50) {
+                freeEx++;
+                currentNanites++;
+                this.accountManager.updateAccountData(activeUser, { freeExtracted: freeEx, nanites: currentNanites });
+                this.nanitesCollected = currentNanites;
+                this.updateAccountHUD();
+
+                if (freeEx >= 50) {
+                  // Reached limit
+                  this.state = 'PAUSED';
+                  this.sounds.playCrash();
+                  document.getElementById('flashNoticeModal').classList.add('active');
+                }
+              } else {
+                // If past free limit, collecting a nanite ADDS to the balance
+                // while travel distance SUBTRACTS from it (Energy system)
+                currentNanites += 5; // Bonus for collection
+                this.accountManager.updateAccountData(activeUser, { nanites: currentNanites });
+                this.nanitesCollected = currentNanites;
+                this.updateAccountHUD();
+              }
+            } else {
+              this.nanitesCollected++;
+              if (this.nanitesCollected >= 50) {
+                this.state = 'PAUSED';
+                document.getElementById('flashNoticeModal').classList.add('active');
+              }
+            }
+            this.sounds.playPickup();
+          }
+        }
+      }
+
+      onCrash() {
+        this.state = 'GAMEOVER'; this.cameraShake = 28; this.flashAlpha = 1.0; this.sounds.playCrash(); this.sounds.stopBgm();
+        if (this.distance > this.bestDistance) { this.bestDistance = this.distance; localStorage.setItem('neonsprint_best', this.distance); }
+      }
+
+      render() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.globalAlpha = 1.0; // Reset global alpha to ensure full brightness
+        this.ctx.save();
+        if (this.cameraShake > 0) this.ctx.translate((Math.random() - 0.5) * this.cameraShake, (Math.random() - 0.5) * this.cameraShake);
+        this.road.draw(this.ctx);
+        [...this.obstacles, ...this.nanites].sort((a, b) => a.z - b.z).forEach(o => o.draw(this.ctx, this.road));
+        if (this.state !== 'GAMEOVER') this.player.draw(this.ctx, this.road);
+        this.particles.draw(this.ctx);
+        this.ctx.restore();
+        if (this.flashAlpha > 0) { this.ctx.globalAlpha = this.flashAlpha; this.ctx.fillStyle = '#fff'; this.ctx.fillRect(0, 0, this.width, this.height); }
+        this.hud.draw(this.ctx);
+      }
+
+      loop(now) {
+        const currentTime = now || ((performance && performance.now) ? performance.now() : Date.now());
+        const dt = Math.min(0.1, (currentTime - this.lastTime) / 1000);
+        this.update(dt);
+        this.render();
+        this.lastTime = currentTime;
+      }
+    }
+
+    window.addEventListener('load', () => {
+      if (!window.gameApp) window.gameApp = new Game();
+    });
+    // Fallback if load event already fired
+    setTimeout(() => {
+      if (!window.gameApp) window.gameApp = new Game();
+    }, 500);
+  </script>
+</body>
+</html>

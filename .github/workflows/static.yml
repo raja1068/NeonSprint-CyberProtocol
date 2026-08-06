@@ -1,7 +1,7 @@
 name: Deploy Static Content
 on:
   push:
-    branches: ["main"]
+    branches: ["main"] # Ensure this matches your branch name (main or master)
 permissions:
   contents: read
   pages: write
@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Already latest
+        uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Point this to your game folder
-          path: 'app/src/main/assets/www/'
+          # Changed this to '.' because your files are in the root of the repo
+          path: '.' 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -633,8 +633,8 @@
         if (!accounts[testUser]) {
           accounts[testUser] = {
             password: 'TempRzp!2026',
-            nanites: 0,
-            freeExtracted: 50, // Force payment testing
+            nanites: 49,
+            freeExtracted: 49,
             bestDistance: 0,
             role: 'tester',
             active: true
@@ -1964,23 +1964,36 @@
         const freeDisp = document.getElementById('freeExtractedDisplay');
         const freeSpan = document.getElementById('freeExtractedSpan');
         const accBtn = document.getElementById('accountBtn');
+
+        let nanites = 0;
+        let freeExtracted = 0;
+        let username = 'GUEST';
+
         if (u) {
           const data = this.accountManager.getAccountData(u);
-          if (userDisp) userDisp.innerText = u.toUpperCase();
-          if (naniteDisp) naniteDisp.innerText = Math.floor(data.nanites).toLocaleString();
-
-          if (freeDisp) freeDisp.innerText = data.freeExtracted || 0;
-          if (freeSpan) {
-            // Display for the first 50 Nanites collection, then hide
-            freeSpan.style.display = (data.freeExtracted >= 50) ? 'none' : 'inline';
-          }
-
+          nanites = data.nanites || 0;
+          freeExtracted = data.freeExtracted || 0;
+          username = u.toUpperCase();
           if (accBtn) accBtn.innerHTML = '🚪 LOGOUT';
         } else {
-          if (userDisp) userDisp.innerText = 'GUEST';
-          if (naniteDisp) naniteDisp.innerText = '0';
-          if (freeSpan) freeSpan.style.display = 'inline';
-          if (accBtn) accBtn.innerHTML = '🔑 LOGIN';
+          nanites = this.nanitesCollected;
+          freeExtracted = this.nanitesCollected;
+          if (accBtn) accBtn.innerHTML = '🔑 LOG IN / SIGN UP';
+        }
+
+        if (userDisp) userDisp.innerText = username;
+        if (naniteDisp) naniteDisp.innerText = Math.floor(nanites).toLocaleString();
+        if (freeDisp) freeDisp.innerText = Math.min(50, freeExtracted);
+
+        if (freeSpan) {
+          freeSpan.style.display = 'inline';
+          if (freeExtracted >= 50) {
+            freeSpan.style.color = '#fe00fe'; // Warning color
+            freeSpan.innerHTML = '(Free Limit Reached)';
+          } else {
+            freeSpan.style.color = '#b9cacb';
+            freeSpan.innerHTML = '(Free: <span id="freeExtractedDisplay">' + freeExtracted + '</span>/50)';
+          }
         }
       }
 
@@ -2304,13 +2317,14 @@
 
         if (this.state === 'START' && h.initRunBtnBounds && x >= h.initRunBtnBounds.x && x <= h.initRunBtnBounds.x + h.initRunBtnBounds.w && y >= h.initRunBtnBounds.y && y <= h.initRunBtnBounds.y + h.initRunBtnBounds.h) { this.startNewGame(); return true; }
         if (h.storeBtnBounds && x >= h.storeBtnBounds.x && x <= h.storeBtnBounds.x + h.storeBtnBounds.w && y >= h.storeBtnBounds.y && y <= h.storeBtnBounds.y + h.storeBtnBounds.h) {
+          if (this.state === 'PLAYING') this.togglePause();
           this.isStoreOpen = true;
           document.getElementById('storeModal').classList.add('active');
           this.sounds.playClick();
           return true;
         }
         if (this.state === 'GAMEOVER' && h.restartBtnBounds && x >= h.restartBtnBounds.x && x <= h.restartBtnBounds.x + h.restartBtnBounds.w && y >= h.restartBtnBounds.y && y <= h.restartBtnBounds.y + h.restartBtnBounds.h) { this.startNewGame(); return true; }
-        if (this.state === 'PLAYING' && h.pauseBtnBounds && x >= h.pauseBtnBounds.x && x <= h.pauseBtnBounds.x + h.pauseBtnBounds.w && y >= h.pauseBtnBounds.y && y <= h.pauseBtnBounds.y + h.pauseBtnBounds.h) { this.togglePause(); return true; }
+        if ((this.state === 'PLAYING' || this.state === 'PAUSED') && h.pauseBtnBounds && x >= h.pauseBtnBounds.x && x <= h.pauseBtnBounds.x + h.pauseBtnBounds.w && y >= h.pauseBtnBounds.y && y <= h.pauseBtnBounds.y + h.pauseBtnBounds.h) { this.togglePause(); return true; }
         return false;
       }
 
@@ -2396,8 +2410,10 @@
               }
             } else {
               this.nanitesCollected++;
+              this.updateAccountHUD();
               if (this.nanitesCollected >= 50) {
                 this.state = 'PAUSED';
+                this.sounds.playCrash();
                 document.getElementById('flashNoticeModal').classList.add('active');
               }
             }

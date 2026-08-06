@@ -391,7 +391,7 @@
         🔒 Note: Whenever you leave or close the app, your player session will automatically log out for maximum security.
       </div>
 
-      <button style="margin-top: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('loginModal').classList.remove('active')">CLOSE</button>
+      <button style="margin-top: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="window.gameApp.closeModal('login')">CLOSE</button>
     </div>
   </div>
 
@@ -464,7 +464,7 @@
 
       <button id="payActionBtn" class="cyber-btn cyber-btn-gold" onclick="window.gameApp.openPaymentGateway()">⚡ BUY $0.99 - UPGRADE NANITES</button>
 
-      <button style="margin-top: 10px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('storeModal').classList.remove('active')">CLOSE VAULT</button>
+      <button style="margin-top: 10px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 8px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="window.gameApp.closeModal('store')">CLOSE VAULT</button>
     </div>
   </div>
 
@@ -551,7 +551,7 @@
 
       <button id="gatewaySubmitBtn" class="cyber-btn cyber-btn-gold" onclick="window.gameApp.submitPaymentGateway()">⚡ PAY NOW (SECURE GATEWAY)</button>
 
-      <button style="margin-top: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 6px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('paymentGatewayModal').classList.remove('active')">CANCEL TRANSACTION</button>
+      <button style="margin-top: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #8fa3a5; width: 100%; padding: 6px; font-size: 11px; border-radius: 6px; cursor: pointer;" onclick="window.gameApp.closeModal('paymentGateway')">CANCEL TRANSACTION</button>
     </div>
   </div>
 
@@ -581,7 +581,7 @@
         🔊 Settings are automatically synchronized and persisted in your local Cyber Cache for subsequent sessions.
       </div>
 
-      <button class="cyber-btn" style="margin-top:24px;" onclick="document.getElementById('settingsModal').classList.remove('active')">SYNC & CLOSE</button>
+      <button class="cyber-btn" style="margin-top:24px;" onclick="window.gameApp.closeModal('settings')">SYNC & CLOSE</button>
     </div>
   </div>
 
@@ -624,6 +624,23 @@
         this.dbKey = 'neonsprint_accounts_db';
         this.sessionKey = 'neonsprint_active_session_user';
         this.setupAutoLogout();
+        this.seedDummyAccounts();
+      }
+
+      seedDummyAccounts() {
+        const accounts = this.getAccounts();
+        const testUser = 'razorpay+test@yourdomain.com';
+        if (!accounts[testUser]) {
+          accounts[testUser] = {
+            password: 'TempRzp!2026',
+            nanites: 0,
+            freeExtracted: 50, // Force payment testing
+            bestDistance: 0,
+            role: 'tester',
+            active: true
+          };
+          this.saveAccounts(accounts);
+        }
       }
 
       setupAutoLogout() {
@@ -938,18 +955,19 @@
 
       handleKeyDown(e) {
         if (e.code === 'KeyS' || e.code === 'KeyB' || e.code === 'KeyV') {
-          this.game.isStoreOpen = !this.game.isStoreOpen;
-          this.game.isPrivacyOpen = false;
+          if (this.game.isStoreOpen) {
+            this.game.closeModal('store');
+          } else {
+            this.game.isStoreOpen = true;
+            document.getElementById('storeModal').classList.add('active');
+          }
           this.game.sounds.playClick();
         } else if (e.code === 'Escape') {
-          if (this.game.isPrivacyOpen) {
-            this.game.isPrivacyOpen = false;
-            this.game.sounds.playClick();
-          } else if (this.game.isStoreOpen) {
-            this.game.isStoreOpen = false;
-            this.game.sounds.playClick();
-          }
-        } else if (!this.game.isStoreOpen && !this.game.isPrivacyOpen) {
+          if (this.game.isStoreOpen) this.game.closeModal('store');
+          if (this.game.isLoginOpen) this.game.closeModal('login');
+          if (this.game.isSettingsOpen) this.game.closeModal('settings');
+          if (this.game.isPaymentGatewayOpen) this.game.closeModal('paymentGateway');
+        } else if (!this.game.isStoreOpen && !this.game.isLoginOpen && !this.game.isSettingsOpen && !this.game.isPaymentGatewayOpen) {
           if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
             this.game.onInputLeft();
           } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
@@ -966,7 +984,8 @@
 
       handleTouchStart(e) {
         // Do not block events on HTML form elements or buttons
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'A') {
+        const target = e.target.closest('button, input, select, a, .cyber-pkg-card, .curr-btn, .gateway-method-btn');
+        if (target) {
           return;
         }
 
@@ -980,8 +999,7 @@
             return;
           }
 
-          if (this.game.isStoreOpen || this.game.isPrivacyOpen) {
-            e.preventDefault();
+          if (this.game.isStoreOpen || this.game.isLoginOpen || this.game.isSettingsOpen || this.game.isPaymentGatewayOpen) {
             return;
           }
 
@@ -1003,13 +1021,14 @@
       }
 
       handleClick(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'A') {
+        const target = e.target.closest('button, input, select, a, .cyber-pkg-card, .curr-btn, .gateway-method-btn');
+        if (target) {
           return;
         }
         if (this.game.checkUIButtonClick(e.clientX, e.clientY)) {
           return;
         }
-        if (this.game.isStoreOpen) {
+        if (this.game.isStoreOpen || this.game.isLoginOpen || this.game.isSettingsOpen || this.game.isPaymentGatewayOpen) {
           return;
         }
         if (this.game.state === 'START' || this.game.state === 'GAMEOVER') {
@@ -1876,6 +1895,9 @@
           this.state = 'START';
           this.isStoreOpen = false;
           this.isPrivacyOpen = false;
+          this.isLoginOpen = false;
+          this.isSettingsOpen = false;
+          this.isPaymentGatewayOpen = false;
           this.distance = 0;
           this.speed = 0.5;
           this.nanitesCollected = 0;
@@ -1974,11 +1996,22 @@
           if (errorMsg) errorMsg.style.display = 'none';
           document.getElementById('authUsername').value = '';
           document.getElementById('authPassword').value = '';
+          this.isLoginOpen = true;
           document.getElementById('loginModal').classList.add('active');
           this.authTab = 'login';
           this.switchAuthTab('login');
           this.sounds.playClick();
         }
+      }
+
+      closeModal(modalId) {
+        document.getElementById(modalId + 'Modal').classList.remove('active');
+        if (modalId === 'store') this.isStoreOpen = false;
+        if (modalId === 'login') this.isLoginOpen = false;
+        if (modalId === 'settings') this.isSettingsOpen = false;
+        if (modalId === 'flashNotice') { /* optional */ }
+        if (modalId === 'paymentGateway') { /* optional */ }
+        this.sounds.playClick();
       }
 
       switchAuthTab(tab) {
@@ -2010,7 +2043,7 @@
         const res = this.authTab === 'signup' ? this.accountManager.signup(u, p) : this.accountManager.login(u, p);
 
         if (res.success) {
-          document.getElementById('loginModal').classList.remove('active');
+          this.closeModal('login');
           this.updateAccountHUD();
           this.sounds.playPickup();
         } else {
@@ -2065,6 +2098,7 @@
 
       openStoreFromNotice() {
         document.getElementById('flashNoticeModal').classList.remove('active');
+        this.isStoreOpen = true;
         document.getElementById('storeModal').classList.add('active');
         this.sounds.playClick();
       }
@@ -2137,6 +2171,7 @@
         document.getElementById('gatewayPkgTitle').innerText = `${pkg.name} (+${pkg.nanites.toLocaleString()} NANITES)`;
         document.getElementById('gatewayPkgPrice').innerText = `${s}${(pkg.price * r).toFixed(2)} ${this.selectedCurrency || 'USD'}`;
 
+        this.isPaymentGatewayOpen = true;
         document.getElementById('paymentGatewayModal').classList.add('active');
       }
 
@@ -2179,8 +2214,11 @@
         const activeUser = this.accountManager.getActiveUser() || "Guest";
 
         // Use placeholder for email/contact if not provided by user
-        // In a real app, you might want to ask for these or get them from account data
-        const email = "player@neonsprint.com";
+        let email = "player@neonsprint.com";
+        // If the username looks like an email, use it for prefill
+        if (activeUser.includes('@')) {
+          email = activeUser;
+        }
         const contact = "9999999999";
 
         // Call Native Android Interface
@@ -2209,8 +2247,8 @@
         }
 
         setTimeout(() => {
-          document.getElementById('paymentGatewayModal').classList.remove('active');
-          document.getElementById('storeModal').classList.remove('active');
+          this.closeModal('paymentGateway');
+          this.closeModal('store');
           this.processPaymentSuccess();
           if (status) status.style.display = 'none';
         }, 1500);
@@ -2255,8 +2293,8 @@
 
       checkUIButtonClick(x, y) {
         const h = this.hud;
-        if (this.isPrivacyOpen) { this.isPrivacyOpen = false; return true; }
-        if (this.isStoreOpen) { this.isStoreOpen = false; return true; }
+        // Don't intercept UI clicks if a modal is open
+        if (this.isStoreOpen || this.isLoginOpen || this.isSettingsOpen || this.isPaymentGatewayOpen) return false;
 
         if (h.settingsBtnBounds && x >= h.settingsBtnBounds.x && x <= h.settingsBtnBounds.x + h.settingsBtnBounds.w && y >= h.settingsBtnBounds.y && y <= h.settingsBtnBounds.y + h.settingsBtnBounds.h) {
           document.getElementById('settingsModal').classList.add('active');
@@ -2265,7 +2303,12 @@
         }
 
         if (this.state === 'START' && h.initRunBtnBounds && x >= h.initRunBtnBounds.x && x <= h.initRunBtnBounds.x + h.initRunBtnBounds.w && y >= h.initRunBtnBounds.y && y <= h.initRunBtnBounds.y + h.initRunBtnBounds.h) { this.startNewGame(); return true; }
-        if (h.storeBtnBounds && x >= h.storeBtnBounds.x && x <= h.storeBtnBounds.x + h.storeBtnBounds.w && y >= h.storeBtnBounds.y && y <= h.storeBtnBounds.y + h.storeBtnBounds.h) { this.isStoreOpen = true; return true; }
+        if (h.storeBtnBounds && x >= h.storeBtnBounds.x && x <= h.storeBtnBounds.x + h.storeBtnBounds.w && y >= h.storeBtnBounds.y && y <= h.storeBtnBounds.y + h.storeBtnBounds.h) {
+          this.isStoreOpen = true;
+          document.getElementById('storeModal').classList.add('active');
+          this.sounds.playClick();
+          return true;
+        }
         if (this.state === 'GAMEOVER' && h.restartBtnBounds && x >= h.restartBtnBounds.x && x <= h.restartBtnBounds.x + h.restartBtnBounds.w && y >= h.restartBtnBounds.y && y <= h.restartBtnBounds.y + h.restartBtnBounds.h) { this.startNewGame(); return true; }
         if (this.state === 'PLAYING' && h.pauseBtnBounds && x >= h.pauseBtnBounds.x && x <= h.pauseBtnBounds.x + h.pauseBtnBounds.w && y >= h.pauseBtnBounds.y && y <= h.pauseBtnBounds.y + h.pauseBtnBounds.h) { this.togglePause(); return true; }
         return false;

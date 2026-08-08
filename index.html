@@ -80,39 +80,47 @@
     #userAccountBar {
       position: absolute;
       top: 10px;
-      left: 12px;
+      left: 10px;
+      right: 10px;
       z-index: 1000;
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(12, 14, 25, 0.9);
-      border: 1px solid rgba(0, 242, 255, 0.6);
-      border-radius: 6px;
-      padding: 8px 16px;
-      font-size: 11px;
-      box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-      backdrop-filter: blur(8px);
+      justify-content: space-between;
+      gap: 6px;
+      background: rgba(12, 14, 25, 0.96);
+      border: 1px solid rgba(0, 242, 255, 0.8);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 9px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      backdrop-filter: none;
       user-select: auto;
       pointer-events: auto;
     }
     #userAccountBar .user-badge {
       color: #ffd700;
       font-weight: bold;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     #userAccountBar .nanite-badge {
       color: #00f2ff;
+      white-space: nowrap;
     }
     #userAccountBar button {
-      background: rgba(254, 0, 254, 0.2);
+      background: rgba(254, 0, 254, 0.3);
       border: 1px solid #fe00fe;
-      color: #fe00fe;
+      color: #ffffff;
       font-family: inherit;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 4px;
+      padding: 3px 8px;
+      border-radius: 3px;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     #userAccountBar button:hover {
       background: #fe00fe;
@@ -1262,8 +1270,7 @@
 
           // Intense Neon Outlines
           const bColor = neonColors[bIdx % neonColors.length];
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = bColor;
+          ctx.shadowBlur = 0;
           ctx.fillStyle = bColor;
           ctx.fillRect(bx, proj0.horizonY - bh, 3, bh);
           ctx.fillRect(bx + bw - 7, proj0.horizonY - bh, 3, bh);
@@ -1274,7 +1281,7 @@
             for (let wx = bx + 6; wx < bx + bw - 10; wx += 12) {
               if ((wx + wy + bIdx) % 2 === 0) {
                 ctx.fillStyle = neonColors[(bIdx + 1) % neonColors.length];
-                ctx.shadowBlur = 10;
+                ctx.shadowBlur = 0;
                 ctx.fillRect(wx, wy, 6, 7);
               }
             }
@@ -1284,8 +1291,7 @@
         }
 
         // Horizon Line Beam
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowBlur = 0;
         ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -1359,7 +1365,7 @@
         // 4. Animated Lane Dividers
         ctx.save();
         ctx.strokeStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.65)`;
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 0;
         ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
         ctx.lineWidth = 2;
 
@@ -1382,10 +1388,9 @@
 
         // 5. Side Rails
         ctx.save();
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowBlur = 0; // Disabled shadow blur to fix "blurred" and pixelated artifacts
         ctx.strokeStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 3;
 
         ctx.beginPath();
         ctx.moveTo(roadPolyLeftTop, proj0.y);
@@ -1462,8 +1467,7 @@
         ctx.save();
         ctx.scale(1, 0.3);
         ctx.fillStyle = `hsla(${180 + speedHue}, 100%, 50%, 0.25)`;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.arc(0, 60, 45 * scale, 0, Math.PI * 2);
         ctx.fill();
@@ -1487,7 +1491,7 @@
         ctx.fill();
 
         ctx.save();
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = 0;
         ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
 
         ctx.fillStyle = '#0f1424';
@@ -1508,14 +1512,14 @@
 
         ctx.fillStyle = '#39ff14';
         ctx.shadowColor = '#39ff14';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.arc(planeW * 0.5, planeH * 0.15, 3 * scale, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = '#ff2a2a';
         ctx.shadowColor = '#ff2a2a';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.arc(-planeW * 0.5, planeH * 0.15, 3 * scale, 0, Math.PI * 2);
         ctx.fill();
@@ -1530,7 +1534,7 @@
 
         ctx.fillStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
         ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 0;
         ctx.fillRect(planeW * 0.19, planeH * 0.1 + 22 * scale, 6 * scale, 12 * scale);
         ctx.fillRect(-planeW * 0.19 - 6 * scale, planeH * 0.1 + 22 * scale, 6 * scale, 12 * scale);
 
@@ -1557,8 +1561,7 @@
         ctx.stroke();
 
         ctx.fillStyle = `hsl(${180 + speedHue}, 100%, 50%)`;
-        ctx.shadowColor = `hsl(${180 + speedHue}, 100%, 50%)`;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.ellipse(0, -planeH * 0.2, 5 * scale, 14 * scale, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -1570,7 +1573,7 @@
 
         ctx.fillStyle = '#fe00fe';
         ctx.shadowColor = '#fe00fe';
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 0;
         ctx.beginPath();
         ctx.moveTo(0, planeH * 0.02);
         ctx.lineTo(3 * scale, planeH * 0.42);
@@ -1612,9 +1615,7 @@
 
         ctx.save();
         ctx.translate(x, y);
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = '#fe00fe';
-
+        ctx.shadowBlur = 0;
         ctx.save();
         ctx.scale(1, 0.3);
         ctx.fillStyle = 'rgba(254, 0, 254, 0.3)';
@@ -1692,8 +1693,7 @@
 
         ctx.save();
         ctx.translate(x, y);
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = '#ffd700';
+        ctx.shadowBlur = 0;
 
         const auraGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, radius * 1.8);
         auraGrad.addColorStop(0, 'rgba(255, 215, 0, 0.9)');
@@ -1741,13 +1741,12 @@
         ctx.restore();
       }
 
-      drawGlassPanel(ctx, x, y, width, height, borderColor = '#00f2ff', bgColor = 'rgba(15, 17, 26, 0.65)') {
+      drawGlassPanel(ctx, x, y, width, height, borderColor = '#00f2ff', bgColor = 'rgba(15, 17, 26, 0.85)') {
         ctx.save();
         ctx.fillStyle = bgColor;
         ctx.strokeStyle = borderColor;
-        ctx.lineWidth = 1.5;
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = borderColor;
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 0; // Disabled shadow blur as it causes pixelation on mobile
         ctx.beginPath();
         if (ctx.roundRect) {
           ctx.roundRect(x, y, width, height, 8);
@@ -2076,6 +2075,7 @@
           this.canvas.width = this.width * dpr;
           this.canvas.height = this.height * dpr;
           if (this.ctx) {
+            this.ctx.imageSmoothingEnabled = true;
             this.ctx.scale(dpr, dpr);
           }
         } catch(e) {

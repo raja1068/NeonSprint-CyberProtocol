@@ -594,32 +594,36 @@
   </div>
 
   <footer id="gameFooter">
-    <a href="privacy-policy.html" target="_blank" rel="noopener noreferrer" id="privacyLink" onclick="openPrivacyPolicy(event)">📜 Privacy Policy</a>
+   <a href="https://raw.githack.com/raja1068/NeonSprint-CyberProtocol/main/privacy-policy.html"
+   target="_blank"
+   rel="noopener noreferrer"
+   id="privacyLink">📜 Privacy Policy</a> 
     <span class="divider">|</span>
-    <span class="copyright">&copy; 2026 Rajarshi Roy Chaudhuri</span>
+    <span class="copyright">&copy; 2026 MASOOM INDIA</span>
   </footer>
 
   <div id="root"></div>
   <script>
-    function openPrivacyPolicy(e) {
-      if (e) e.preventDefault();
+ function openPrivacyPolicy(e) {
+  if (e) e.preventDefault();
 
-      // Check if running on Android with native interface
-      if (window.Android && typeof window.Android.openPrivacyPolicy === 'function') {
-        window.Android.openPrivacyPolicy();
-        return;
-      }
+  // If running inside an Android wrapper that exposes a native method, call it
+  if (window.Android && typeof window.Android.openPrivacyPolicy === 'function') {
+    window.Android.openPrivacyPolicy();
+    return;
+  }
 
-      const url = 'privacy-policy.html';
-      try {
-        const win = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!win || win.closed || typeof win.closed === 'undefined') {
-          window.location.href = url;
-        }
-      } catch (err) {
-        window.location.href = url;
-      }
+  const url = 'https://raw.githack.com/raja1068/NeonSprint-CyberProtocol/main/privacy-policy.html';
+  try {
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!win || win.closed || typeof win.closed === 'undefined') {
+      // fallback
+      window.location.href = url;
     }
+  } catch (err) {
+    window.location.href = url;
+  }
+}
 
     /* ==========================================================================
        NEON SPRINT: CYBER PROTOCOL
